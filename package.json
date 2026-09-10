@@ -1,0 +1,19 @@
+{
+  "name": "reddit-scraper-mcp",
+  "version": "0.1.0",
+  "description": "Stdio MCP server that gives AI agents Reddit posts, comments, search results, subreddits and user profiles via the Reddit Scraper Pro Apify Actor. No Reddit API key.",
+  "type": "module",
+  "bin": { "reddit-scraper-mcp": "index.js" },
+  "files": ["index.js", "README.md"],
+  "engines": { "node": ">=20" },
+  "scripts": { "start": "node index.js" },
+  "keywords": ["mcp", "model-context-protocol", "reddit", "reddit-scraper", "apify", "ai-agent", "claude", "cursor", "codex"],
+  "repository": { "type": "git", "url": "https://github.com/harshmaur/reddit-scraper-pro-mcp" },
+  "homepage": "https://apify.com/harshmaur/reddit-scraper-pro",
+  "license": "MIT",
+  "mcpName": "io.github.harshmaur/reddit-scraper-pro",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^3.25.0"
+  }
+}

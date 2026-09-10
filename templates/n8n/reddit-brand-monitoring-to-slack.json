@@ -1,0 +1,154 @@
+{
+  "name": "Reddit brand monitoring → Slack (Reddit Scraper Pro)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24
+            }
+          ]
+        }
+      },
+      "id": "a1",
+      "name": "Every 24h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "actorSource": "recentlyUsed",
+        "actorId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "harshmaur~reddit-scraper-pro"
+        },
+        "customBody": "={{ JSON.stringify({\"searchTerms\": [\"your brand\", \"your competitor\"], \"searchSort\": \"new\", \"postedAfter\": $now.minus({days: 1}).toFormat('yyyy-LL-dd'), \"maxPostsCount\": 100}) }}",
+        "timeout": 600,
+        "memory": 512,
+        "maxTotalChargeUsd": 2
+      },
+      "id": "a2",
+      "name": "Reddit Scraper Pro",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        260,
+        0
+      ],
+      "credentials": {
+        "apifyApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Apify API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.dataType }}",
+              "rightValue": "post",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "a3",
+      "name": "Posts only",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        520,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#reddit-mentions"
+        },
+        "text": "=*{{ $json.title }}* in {{ $json.communityName }} ({{ $json.score }}↑, {{ $json.commentsCount }} comments)\n{{ $json.postUrl }}",
+        "otherOptions": {}
+      },
+      "id": "a4",
+      "name": "Post to Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        780,
+        0
+      ],
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Slack"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Every 24h": {
+      "main": [
+        [
+          {
+            "node": "Reddit Scraper Pro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reddit Scraper Pro": {
+      "main": [
+        [
+          {
+            "node": "Posts only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Posts only": {
+      "main": [
+        [
+          {
+            "node": "Post to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}
