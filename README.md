@@ -30,14 +30,14 @@ Purpose-built tools with typed arguments, so the model fills in `queries`, `subr
   "mcpServers": {
     "reddit-scraper": {
       "command": "npx",
-      "args": ["-y", "github:harshmaur/reddit-scraper-pro-mcp"],
+      "args": ["-y", "reddit-scraper-mcp"],
       "env": { "APIFY_TOKEN": "<APIFY_TOKEN>" }
     }
   }
 }
 ```
 
-Or clone and run `node index.js`. Node 20+.
+Published on npm as [`reddit-scraper-mcp`](https://www.npmjs.com/package/reddit-scraper-mcp). Or clone and run `node index.js`. Node 20+.
 
 | Tool | Use it for |
 | --- | --- |
