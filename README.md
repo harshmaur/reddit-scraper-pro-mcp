@@ -41,9 +41,9 @@ Published on npm as [`reddit-scraper-mcp`](https://www.npmjs.com/package/reddit-
 
 | Tool | Use it for |
 | --- | --- |
-| `search_reddit` | Keyword search across Reddit or one subreddit; sort, time window, date range, optional comments. Brand monitoring, lead discovery, "what is Reddit saying about X". |
+| `search_reddit` | Keyword search across Reddit or one subreddit; sort, time window, date range; matching comments and post threads on by default. Brand monitoring, lead discovery, "what is Reddit saying about X". |
 | `scrape_reddit_urls` | Post permalinks (with the full thread), `/user/<name>/` profiles, subreddit listing URLs, search-page URLs. |
-| `scrape_subreddit` | Bulk posts from one or more subreddits, optionally date-bounded and with comments. |
+| `scrape_subreddit` | Bulk posts from one or more subreddits, optionally date-bounded; comment threads on by default. |
 
 Environment:
 

@@ -1,6 +1,6 @@
 {
   "name": "reddit-scraper-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Stdio MCP server that gives AI agents Reddit posts, comments, search results, subreddits and user profiles via the Reddit Scraper Pro Apify Actor. No Reddit API key.",
   "type": "module",
   "bin": { "reddit-scraper-mcp": "index.js" },
