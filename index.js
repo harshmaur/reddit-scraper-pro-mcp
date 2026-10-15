@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 // Stdio MCP server for the Reddit Scraper Pro Apify Actor.
-// Env: APIFY_TOKEN (required), REDDIT_SCRAPER_ACTOR (default harshmaur/reddit-scraper-pro).
+// Env: APIFY_TOKEN (required), REDDIT_SCRAPER_ACTOR (default harshmaur/reddit-scraper).
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
-const ACTOR = (process.env.REDDIT_SCRAPER_ACTOR || "harshmaur/reddit-scraper-pro").replace("/", "~");
+const ACTOR = (process.env.REDDIT_SCRAPER_ACTOR || "harshmaur/reddit-scraper").replace("/", "~");
 const TOKEN = process.env.APIFY_TOKEN;
 const RUN_TIMEOUT_S = Number(process.env.REDDIT_SCRAPER_TIMEOUT || 300);
 
