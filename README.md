@@ -1,8 +1,10 @@
 # Reddit Scraper MCP server
 
-MCP server for the [Reddit Scraper Pro](https://apify.com/harshmaur/reddit-scraper-pro) Apify Actor (also works with [Reddit Scraper](https://apify.com/harshmaur/reddit-scraper)). Gives Claude, Cursor, Codex, Windsurf, ChatGPT and any other MCP client three tools for Reddit as structured JSON: keyword search, URL scraping with full comment threads, and bulk subreddit pulls. No Reddit API key, no login. Billed per result on Apify ($1.50 per 1,000 + $0.01 per run; the free plan covers small runs).
+MCP server for the [Reddit Scraper](https://apify.com/harshmaur/reddit-scraper?fpr=tl88um) Apify Actor. Gives Claude, Cursor, Codex, Windsurf, ChatGPT and any other MCP client three tools for Reddit as structured JSON: keyword search, URL scraping with full comment threads, and bulk subreddit pulls. No Reddit API key, no login. Billed per result on Apify ($2 per 1,000 results, less with Apify plan discounts; the free plan covers small runs).
 
-Two ways to connect. Both need an Apify token from https://console.apify.com/account/integrations.
+> **Reddit API and RSS shutdown.** Reddit stops accepting new API access requests on 2026-10-31. Reddit RSS feeds stop on 2026-11-13. This server does not use a Reddit API key, a Reddit app or RSS, so neither date changes your setup.
+
+Two ways to connect. Both need an Apify token. No Apify account yet? [Sign up free](https://console.apify.com/sign-up?fpr=tl88um), then copy the token from https://console.apify.com/account/integrations.
 
 ## Option A — remote (nothing to install)
 
@@ -11,15 +13,15 @@ Apify hosts the Actor as an MCP tool:
 ```json
 {
   "mcpServers": {
-    "reddit-scraper-pro": {
-      "url": "https://mcp.apify.com/?tools=harshmaur/reddit-scraper-pro",
+    "reddit-scraper": {
+      "url": "https://mcp.apify.com/?tools=harshmaur/reddit-scraper",
       "headers": { "Authorization": "Bearer <APIFY_TOKEN>" }
     }
   }
 }
 ```
 
-Stdio-only clients can bridge with `npx mcp-remote https://mcp.apify.com/?tools=harshmaur/reddit-scraper-pro`. This is the endpoint registered in the [official MCP Registry](https://registry.modelcontextprotocol.io) as `io.github.harshmaur/reddit-scraper-pro`.
+Stdio-only clients can bridge with `npx mcp-remote https://mcp.apify.com/?tools=harshmaur/reddit-scraper`. This is the endpoint registered in the [official MCP Registry](https://registry.modelcontextprotocol.io) as `io.github.harshmaur/reddit-scraper`.
 
 ## Option B — local stdio server (this repo)
 
@@ -53,7 +55,7 @@ Environment:
 | `REDDIT_SCRAPER_ACTOR` | `harshmaur/reddit-scraper-pro` | Set to `harshmaur/reddit-scraper` to run the flagship listing instead |
 | `REDDIT_SCRAPER_TIMEOUT` | `300` | Seconds to wait for a run |
 
-Every item carries `dataType` (`post`, `comment`, `community`, `user`); posts include `title`, `body`, `postUrl`, `communityName`, `authorName`, `score`, `commentsCount`, `createdAt`, `flair`. Field reference: https://apify.com/harshmaur/reddit-scraper-pro#output-example
+Every item carries `dataType` (`post`, `comment`, `community`, `user`); posts include `title`, `body`, `postUrl`, `communityName`, `authorName`, `score`, `commentsCount`, `createdAt`, `flair`. Field reference: https://apify.com/harshmaur/reddit-scraper#output-example
 
 ## Automation templates
 
@@ -68,4 +70,4 @@ The Actor can also deliver results itself (Slack, Notion, Airtable, Sheets) thro
 - `server.json` — official MCP Registry manifest for Pro; `server-reddit-scraper.json` — same for the flagship
 - `Dockerfile`, `glama.json` — for directory indexers
 
-MIT. Built by [Harsh Maur](https://github.com/harshmaur).
+[MIT](LICENSE). Built by [Harsh Maur](https://github.com/harshmaur).

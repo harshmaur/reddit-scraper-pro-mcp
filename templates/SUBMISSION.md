@@ -11,7 +11,7 @@ Apply once as a creator (free; ties templates to the Apify affiliate program if 
 - Name: `Monitor Reddit for brand and competitor mentions and post new threads to Slack`
 - Description:
 
-  > Runs every 24 hours, searches Reddit for the keywords you list (your brand, competitors, product category) and posts every new thread from the last day to a Slack channel with title, subreddit, score and link. Uses the Reddit Scraper Pro Apify Actor through the official Apify node, so there is no Reddit API key, OAuth app or rate-limit handling. Change the keywords and date window in the Apify node's Input JSON; add `withinCommunity` to watch a single subreddit. Results cost $1.50 per 1,000 on Apify, and the node's cost cap is preset to $2 per run.
+  > Runs every 24 hours, searches Reddit for the keywords you list (your brand, competitors, product category) and posts every new thread from the last day to a Slack channel with title, subreddit, score and link. Uses the Reddit Scraper Apify Actor through the official Apify node, so there is no Reddit API key, OAuth app or rate-limit handling. Change the keywords and date window in the Apify node's Input JSON; add `withinCommunity` to watch a single subreddit. Results cost $2 per 1,000 on Apify (less with plan discounts), and the node's cost cap is preset to $2 per run.
 
 - Setup steps:
   1. Install the community node `@apify/n8n-nodes-apify` (Settings → Community nodes).
@@ -25,9 +25,9 @@ Apply once as a creator (free; ties templates to the Apify affiliate program if 
 - Name: `Collect Reddit buying-intent posts from a subreddit into Google Sheets every day`
 - Description:
 
-  > Every day this workflow searches one subreddit for posts where people ask for tool recommendations or alternatives ("looking for a tool", "alternative to", "any recommendations for") and appends each new post to a Google Sheet with date, title, author, score, link and the first 500 characters of the body. It uses the Reddit Scraper Pro Apify Actor via the official Apify node, so no Reddit developer account is needed. Swap the subreddit and phrases in the Input JSON to fit your niche; the sheet becomes a lead list you can work through or feed to a CRM.
+  > Every day this workflow searches one subreddit for posts where people ask for tool recommendations or alternatives ("looking for a tool", "alternative to", "any recommendations for") and appends each new post to a Google Sheet with date, title, author, score, link and the first 500 characters of the body. It uses the Reddit Scraper Apify Actor via the official Apify node, so no Reddit developer account is needed. Swap the subreddit and phrases in the Input JSON to fit your niche; the sheet becomes a lead list you can work through or feed to a CRM.
 
-- Setup steps: as above, with Google Sheets in place of Slack; create a sheet with a tab named `Leads`.
+- Setup steps: as above, with Google Sheets in place of Slack; create a sheet with a tab named `Leads` and pick it in the last node.
 - Categories: Sales, Lead Generation. Nodes: Schedule Trigger, Apify, Filter, Google Sheets.
 
 ## Make public templates — https://www.make.com/en/templates
@@ -37,7 +37,7 @@ Make only accepts templates built in its own editor. Build the scenario from `te
 - Name: `Send new Reddit mentions of your brand to Slack every day`
 - Description:
 
-  > Watches Reddit for the keywords you choose and sends each new thread from the last 24 hours to Slack. Powered by the Reddit Scraper Pro Actor on Apify: no Reddit API key, pay $1.50 per 1,000 results. Edit the keywords, add a subreddit filter or a date range in the Run an Actor module's input.
+  > Watches Reddit for the keywords you choose and sends each new thread from the last 24 hours to Slack. Powered by the Reddit Scraper Actor on Apify: no Reddit API key, pay $2 per 1,000 results. Edit the keywords, add a subreddit filter or a date range in the Run an Actor module's input.
 
 - Suggested variants once the first is approved: Notion database row, Google Sheets row.
 
