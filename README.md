@@ -52,7 +52,7 @@ Environment:
 | Variable | Default | Meaning |
 | --- | --- | --- |
 | `APIFY_TOKEN` | required | Apify API token |
-| `REDDIT_SCRAPER_ACTOR` | `harshmaur/reddit-scraper-pro` | Set to `harshmaur/reddit-scraper` to run the flagship listing instead |
+| `REDDIT_SCRAPER_ACTOR` | `harshmaur/reddit-scraper` | Set to `harshmaur/reddit-scraper-pro` to run the Pro listing instead |
 | `REDDIT_SCRAPER_TIMEOUT` | `300` | Seconds to wait for a run |
 
 Every item carries `dataType` (`post`, `comment`, `community`, `user`); posts include `title`, `body`, `postUrl`, `communityName`, `authorName`, `score`, `commentsCount`, `createdAt`, `flair`. Field reference: https://apify.com/harshmaur/reddit-scraper#output-example
