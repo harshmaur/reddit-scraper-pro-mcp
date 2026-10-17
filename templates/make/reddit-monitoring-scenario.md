@@ -13,13 +13,14 @@ Make does not import third-party blueprints reliably across accounts, so this is
    }
    ```
    Turn on **Run synchronously** (or add **Apify → Watch Actor Runs** as a trigger in a second scenario if runs exceed Make's timeout).
-3. **Apify → Get Dataset Items**. Dataset ID: `{{2.defaultDatasetId}}`. Format JSON, limit 1000.
-4. **Iterator** over the items array.
-5. **Filter** (on the connection): `dataType` equals `post`.
-6. **Destination**, one of:
-   - **Slack → Create a Message**: `*{{5.title}}* in {{5.communityName}} ({{5.score}}↑)\n{{5.postUrl}}`
+3. **Apify → Get Dataset Items**. Dataset ID: `{{1.defaultDatasetId}}`. Format JSON, limit 1000. It outputs one bundle per item, so no Iterator is needed.
+4. **Filter** (on the connection after it): `dataType` equals `post`.
+5. **Destination**, one of:
+   - **Slack → Create a Message**: `*{{2.title}}* in {{2.communityName}} ({{2.score}}↑)\n{{2.postUrl}}`
    - **Notion → Create a Database Item**: map `title`, `postUrl`, `communityName`, `score`, `createdAt`
    - **Google Sheets → Add a Row**: same fields as columns
+
+Module numbers above assume you add the modules in this order (Run an Actor = 1, Get Dataset Items = 2); the schedule is not a module.
 
 Swap step 2's input for a subreddit archive (`"subredditUrls": ["r/SaaS"]`) or a single-community lead search (`"withinCommunity": "r/smallbusiness"`). All input fields: https://apify.com/harshmaur/reddit-scraper/input-schema.
 
