@@ -27,13 +27,7 @@
         "resource": "Actors",
         "operation": "Run actor and get dataset",
         "actorSource": "store",
-        "actorId": {
-          "__rl": true,
-          "mode": "list",
-          "value": "9sHOY9RzPYGjmTHo8",
-          "cachedResultName": "Reddit Scraper - Posts, Comments, Search & Subreddits (harshmaur/reddit-scraper)",
-          "cachedResultUrl": "https://console.apify.com/actors/9sHOY9RzPYGjmTHo8/input"
-        },
+        "actorId": "harshmaur~reddit-scraper",
         "customBody": "={{ JSON.stringify({ searchTerms: ['your brand', 'your competitor'], searchPosts: true, searchComments: false, searchSort: 'new', postedAfter: '1 day', maxPostsCount: 100 }, null, 2) }}",
         "memory": 512,
         "maxTotalChargeUsd": 2
@@ -98,7 +92,7 @@
         "text": "=*<{{ $json.postUrl }}|{{ $json.title.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}>* in {{ $json.communityName }} ({{ $json.score }}↑, {{ $json.commentsCount }} comments)",
         "otherOptions": {
           "includeLinkToWorkflow": false,
-          "unfurling": false
+          "unfurl_links": false
         }
       },
       "id": "a4",
