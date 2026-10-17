@@ -55,7 +55,7 @@ Environment:
 | `REDDIT_SCRAPER_ACTOR` | `harshmaur/reddit-scraper` | Set to `harshmaur/reddit-scraper-pro` to run the Pro listing instead |
 | `REDDIT_SCRAPER_TIMEOUT` | `300` | Seconds to wait for a run |
 
-Every item carries `dataType` (`post`, `comment`, `community`, `user`); posts include `title`, `body`, `postUrl`, `communityName`, `authorName`, `score`, `commentsCount`, `createdAt`, `flair`. Field reference: https://apify.com/harshmaur/reddit-scraper#output-example
+Every item carries `dataType` (`post`, `comment`, `community`, `user_profile`); posts include `title`, `body`, `postUrl`, `communityName`, `authorName`, `score`, `commentsCount`, `createdAt`, `flair`. Field reference: https://apify.com/harshmaur/reddit-scraper#output-example
 
 ## Automation templates
 
