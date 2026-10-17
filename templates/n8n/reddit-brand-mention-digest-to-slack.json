@@ -1,0 +1,456 @@
+{
+  "name": "Send a daily Reddit brand mention digest with AI sentiment to Slack, from posts and comments",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Daily Reddit brand mention digest in Slack\n\nFor marketing, community and support teams who need to know what Reddit says about their brand and competitors. Every morning this workflow collects yesterday's Reddit **posts and comments** that mention your terms, and OpenAI writes one short Slack digest: volume, sentiment, main themes and the threads that need a reply.\n\nMost Reddit monitors watch only posts, but many brand mentions sit in comments. Reddit data comes from the [Reddit Scraper](https://apify.com/harshmaur/reddit-scraper?fpr=tl88um) Actor on Apify, which searches both, with **no Reddit API key or OAuth app approval**.\n\n### How it works\n1. **Every morning** runs at 08:00 and reads your brand terms from **Settings**.\n2. **Search posts and comments for mentions** gets everything from the last day in one Apify run.\n3. **One shape for posts and comments** and **Skip mentions already reported** drop bot posts and items from earlier runs.\n4. **Build the mention list** groups mentions by term and makes a compact list for the AI.\n5. **Write the digest** asks OpenAI for one Slack message, and **Post digest to Slack** sends it.\n\n### Setup\n1. Add the **Apify** node (`@apify/n8n-nodes-apify`, a verified node) if your n8n does not have it yet.\n2. Create an **Apify API** credential with the token from [Apify Console → API & Integrations](https://console.apify.com/settings/integrations). No account yet? [Sign up free](https://console.apify.com/sign-up?fpr=tl88um); the free plan includes monthly credit.\n3. Add an **OpenAI** credential.\n4. Connect Slack and pick a channel.\n5. Edit `brand` and `competitors` in **Settings**. Quote a term (\"Acme CRM\") for an exact match.\n\n### Customization tips\n- Change the schedule and `lookback` together, for example every Monday with `7 days`.\n- Raise `maxPerTerm` for big brands. Results cost about $2 per 1,000 on Apify, and the Apify node stops each run at $2.\n- Swap the Slack node for Gmail, Microsoft Teams or Discord to send the digest elsewhere.",
+        "height": 1000,
+        "width": 620,
+        "color": 1
+      },
+      "id": "6698df46-0e6c-57c3-98fd-fddcb626c637",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -820,
+        -380
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 1. Collect mentions\nPosts and comments, last day, one Apify run.",
+        "height": 360,
+        "width": 700,
+        "color": 7
+      },
+      "id": "58bba863-0f76-549e-bf6f-92384bfeb294",
+      "name": "Section fetch",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -140,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 2. Clean and group",
+        "height": 360,
+        "width": 700,
+        "color": 7
+      },
+      "id": "9c28363f-55a6-5756-8779-c221b33aae03",
+      "name": "Section clean",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        600,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 3. Write and send the digest",
+        "height": 560,
+        "width": 760,
+        "color": 7
+      },
+      "id": "87977af8-ac46-5fd5-b573-915a850014dd",
+      "name": "Section ai",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "9897522f-118a-5ad9-b22f-84ca4660c95b",
+      "name": "Every morning",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -100,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f0656da0-5ce4-5bf4-803d-36a431835328",
+              "name": "brand",
+              "value": "\"Acme CRM\"",
+              "type": "string"
+            },
+            {
+              "id": "9df90f4a-9ef6-5085-a525-be62846efff5",
+              "name": "competitors",
+              "value": "HubSpot, Pipedrive",
+              "type": "string"
+            },
+            {
+              "id": "f71c7f6b-fa2f-5c14-ace4-4661ab8c808a",
+              "name": "lookback",
+              "value": "1 day",
+              "type": "string"
+            },
+            {
+              "id": "96ed5640-ee5d-502f-8a3a-ce3e03c303ec",
+              "name": "maxPerTerm",
+              "value": 100,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1037124-5240-57a8-95d3-2424b96b50a1",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        120,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "apifyApi",
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "actorSource": "store",
+        "actorId": "harshmaur~reddit-scraper",
+        "customBody": "={{ JSON.stringify({ searchTerms: [$json.brand, ...$json.competitors.split(',')].map(s => s.trim()).filter(Boolean), searchPosts: true, searchComments: true, searchSort: 'new', postedAfter: $json.lookback, commentedAfter: $json.lookback, maxPostsCount: $json.maxPerTerm, maxCommentsCount: $json.maxPerTerm, includeNSFW: false }, null, 2) }}",
+        "memory": 512,
+        "maxTotalChargeUsd": 2
+      },
+      "id": "8727b780-0ca5-51b5-af89-7ef1a4ad784a",
+      "name": "Search posts and comments for mentions",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        340,
+        40
+      ],
+      "credentials": {
+        "apifyApi": {
+          "name": "Apify account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Posts and comments have different field names. Give both one shape.\nreturn $input.all().map(({ json: r }) => {\n  const isComment = r.dataType === 'comment';\n  return {\n    json: {\n      kind: isComment ? 'comment' : 'post',\n      id: r.id,\n      searchTerm: r.searchTerm ?? '',\n      subreddit: isComment ? `r/${r.subredditName ?? ''}` : (r.communityName ?? ''),\n      title: isComment ? (r.postTitle ?? '') : (r.title ?? ''),\n      text: String((isComment ? r.body : `${r.title ?? ''}\\n\\n${r.body ?? ''}`) ?? '').slice(0, 2000),\n      author: r.authorName ?? '',\n      url: isComment ? r.url : r.postUrl,\n      createdAt: isComment ? r.commentCreatedAt : r.createdAt,\n      score: r.score ?? r.upVotes ?? 0,\n    },\n  };\n}).filter((i) => i.json.id && i.json.url && i.json.author !== 'AutoModerator');"
+      },
+      "id": "b49ae251-014c-5e0a-ac56-7dc047d25328",
+      "name": "One shape for posts and comments",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.id }}",
+        "options": {}
+      },
+      "id": "3a4b40de-5671-5267-ba2a-67768b4054d9",
+      "name": "Skip mentions already reported",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        860,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const cfg = $('Settings').first().json;\nconst items = $input.all().map((i) => i.json);\nif (items.length === 0) {\n  return [{ json: { empty: true, count: 0, prompt: '', slackFallback: `No new Reddit mentions of ${cfg.brand} or ${cfg.competitors} in the last ${cfg.lookback}.` } }];\n}\nconst byTerm = {};\nfor (const m of items) (byTerm[m.searchTerm || 'other'] ??= []).push(m);\nconst lines = [];\nfor (const [term, list] of Object.entries(byTerm)) {\n  lines.push(`\\n## ${term} (${list.length} mentions)`);\n  for (const m of list.sort((a, b) => b.score - a.score).slice(0, 25)) {\n    const text = m.text.replace(/\\s+/g, ' ').slice(0, 300);\n    lines.push(`- [${m.kind}, ${m.subreddit}, score ${m.score}] ${m.title} | ${text} | ${m.url}`);\n  }\n}\nreturn [{ json: { empty: false, count: items.length, prompt: lines.join('\\n') } }];",
+        "alwaysOutputData": true
+      },
+      "id": "c15a25a7-1c7c-55cb-ba5f-efdc9940d1d8",
+      "name": "Build the mention list",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1080,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "298f7258-dd44-5812-81d1-c8113308cff6",
+              "leftValue": "={{ $json.empty }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "4f0316d2-a18a-5352-94ad-c64ed47bfb98",
+      "name": "Any mentions?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1380,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Brand: {{ $('Settings').first().json.brand }}\nCompetitors: {{ $('Settings').first().json.competitors }}\nPeriod: last {{ $('Settings').first().json.lookback }}\nTotal mentions: {{ $json.count }}\n{{ $json.prompt }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You write a daily Reddit monitoring digest for a marketing team, as Slack mrkdwn (*bold*, _italic_, bullets with •, links as <url|text>). No headings with #. Under 2,500 characters. Write four parts in this order, without numbers or part names except the bold titles: first one line with mention count per term and overall sentiment (positive, mixed or negative) for each; then *Themes*: up to 4 bullets on what people say, most important first; then *Reply to these*: up to 5 threads where the brand should answer (questions, complaints, people comparing us with a competitor), each a link plus a few words on why; then *Competitor watch*: one or two bullets. Use only facts from the list. Do not invent numbers."
+            }
+          ]
+        }
+      },
+      "id": "613dfb17-cd89-5f68-b215-6cf172666468",
+      "name": "Write the digest",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1600,
+        -40
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "options": {}
+      },
+      "id": "c5650594-0af2-53b7-86bd-5e3ea2fcd5a4",
+      "name": "OpenAI model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1600,
+        180
+      ],
+      "credentials": {
+        "openAiApi": {
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "resource": "message",
+        "operation": "post",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "messageType": "text",
+        "text": "={{ $json.text }}",
+        "otherOptions": {
+          "unfurl_links": false,
+          "includeLinkToWorkflow": false
+        }
+      },
+      "id": "7898460e-b138-59ce-913b-646d60d2159b",
+      "name": "Post digest to Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1940,
+        -40
+      ],
+      "credentials": {
+        "slackApi": {
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "resource": "message",
+        "operation": "post",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "messageType": "text",
+        "text": "={{ $json.slackFallback }}",
+        "otherOptions": {
+          "unfurl_links": false,
+          "includeLinkToWorkflow": false
+        }
+      },
+      "id": "4e9ce543-cbcb-5af5-be0c-d569d709496d",
+      "name": "Post 'no mentions' note",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1940,
+        200
+      ],
+      "credentials": {
+        "slackApi": {
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Every morning": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Search posts and comments for mentions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search posts and comments for mentions": {
+      "main": [
+        [
+          {
+            "node": "One shape for posts and comments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "One shape for posts and comments": {
+      "main": [
+        [
+          {
+            "node": "Skip mentions already reported",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skip mentions already reported": {
+      "main": [
+        [
+          {
+            "node": "Build the mention list",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build the mention list": {
+      "main": [
+        [
+          {
+            "node": "Any mentions?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write the digest": {
+      "main": [
+        [
+          {
+            "node": "Post digest to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Write the digest",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Any mentions?": {
+      "main": [
+        [
+          {
+            "node": "Write the digest",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Post 'no mentions' note",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}

@@ -30,6 +30,26 @@ Apply once as a creator (free; ties templates to the Apify affiliate program if 
 - Setup steps: as above, with Google Sheets in place of Slack; create a sheet with a tab named `Leads` and pick it in the last node.
 - Categories: Sales, Lead Generation. Nodes: Schedule Trigger, Apify, Filter, Google Sheets.
 
+## State (2026-10-17)
+
+- n8n: published [20980 Send new subreddit posts to Slack with Apify Reddit scraper](https://n8n.io/workflows/20980-send-new-subreddit-posts-to-slack-with-apify-reddit-scraper/) under [creators/harshmaur](https://n8n.io/creators/harshmaur/). n8n says two more published templates make the profile a verified creator.
+- Make: [template 20007](https://www.make.com/en/templates/20007), approved by Make support on 2026-10-16.
+- awesome-n8n-templates: five workflows in [enescingoz/awesome-n8n-templates#262](https://github.com/enescingoz/awesome-n8n-templates/pull/262), open.
+
+## n8n AI templates (submit as templates 2-4)
+
+Each one opens with an overview sticky note in n8n's "How it works / Setup / Customization" format, so the template page and the canvas show the same text. Paste that note as the description.
+
+**Score Reddit buying-intent leads with OpenAI and send hot leads to Slack and Google Sheets** — `n8n/reddit-buying-intent-lead-scoring-to-slack-and-sheets.json`. Categories: Sales, Lead Generation, AI. Nodes: Schedule Trigger, Set, Apify, Code, Remove Duplicates, Basic LLM Chain, OpenAI Chat Model, Structured Output Parser, Google Sheets, Filter, Slack.
+
+**Find business ideas in Reddit pain points with Apify, OpenAI and Google Sheets** — `n8n/reddit-business-ideas-from-pain-points-to-google-sheets.json`. Categories: Market Research, AI. Nodes: Schedule Trigger, Set, Code, Apify, Filter, Remove Duplicates, Basic LLM Chain, OpenAI Chat Model, Structured Output Parser, Google Sheets.
+
+**Send a daily Reddit brand mention digest with AI sentiment to Slack, from posts and comments** — `n8n/reddit-brand-mention-digest-to-slack.json`. Categories: Marketing, Social Media Monitoring, AI. Nodes: Schedule Trigger, Set, Apify, Code, Remove Duplicates, If, Basic LLM Chain, OpenAI Chat Model, Slack.
+
+## Make AI template
+
+Build `make/reddit-lead-scoring-scenario.md` in Make and submit it with the listing text at the end of that file.
+
 ## Make public templates — https://www.make.com/en/templates
 
 Make only accepts templates built in its own editor. Build the scenario from `templates/make/reddit-monitoring-scenario.md` in your Make account, then **Templates → Create template from scenario**, **Publish**, then **Request approval** for the public library (Make reviews it; the Apify app is an official app, so it is eligible).
