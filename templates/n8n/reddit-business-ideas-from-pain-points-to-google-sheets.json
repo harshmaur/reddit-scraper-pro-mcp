@@ -1,0 +1,626 @@
+{
+  "name": "Find business ideas in Reddit pain points with Apify, OpenAI and Google Sheets",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Find business ideas in Reddit pain points\n\nFor founders, indie hackers and product teams who look for problems worth solving. Every Monday this workflow collects last week's Reddit posts where people complain or wish for a tool, asks OpenAI whether each one is a real business opportunity, and saves the good ones to Google Sheets.\n\nReddit data comes from the [Reddit Scraper](https://apify.com/harshmaur/reddit-scraper?fpr=tl88um) Actor on Apify, so you need **no Reddit API key or OAuth app approval**. Templates built on the native Reddit node stop at Reddit's API approval step; this one does not.\n\n### How it works\n1. **Every Monday** reads your phrases and subreddits from **Settings**.\n2. **Search Reddit for pain points** finds posts from the last 7 days that use phrases like \"I wish there was\" or \"so frustrated with\", in each subreddit you list.\n3. **Keep posts with real text** drops link posts and one-liners. **Skip posts already checked** drops posts from earlier runs.\n4. **Rate the opportunity** asks OpenAI for the problem, who has it, a product idea and a 1-10 score.\n5. **Good ideas only** keeps scores at or above `minScore` and appends them to Google Sheets.\n\n### Setup\n1. Add the **Apify** node (`@apify/n8n-nodes-apify`, a verified node) if your n8n does not have it yet.\n2. Create an **Apify API** credential with the token from [Apify Console → API & Integrations](https://console.apify.com/settings/integrations). No account yet? [Sign up free](https://console.apify.com/sign-up?fpr=tl88um); the free plan includes monthly credit.\n3. Add an **OpenAI** credential.\n4. Create a Google Sheet with an `Ideas` tab and the columns `foundAt, score, category, problem, audience, idea, subreddit, title, upvotes, comments, url`. Connect Google Sheets and pick the file.\n5. Edit `subreddits` and `phrases` in **Settings**.\n\n### Customization tips\n- Leave `subreddits` empty to search all of Reddit.\n- Change the scoring rules in **Rate the opportunity** to fit B2B, consumer or local businesses.\n- Reddit results cost about $2 per 1,000 on Apify. The Apify node stops each run at $2.",
+        "height": 1000,
+        "width": 620,
+        "color": 1
+      },
+      "id": "a0be55a8-6380-5e08-8783-797c42d2ed8c",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -820,
+        -380
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 1. Collect pain-point posts\nOne Apify run per subreddit, last 7 days.",
+        "height": 360,
+        "width": 920,
+        "color": 7
+      },
+      "id": "f551d474-68c3-5986-b549-43857c23a1b2",
+      "name": "Section fetch",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -140,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 2. Clean and de-duplicate",
+        "height": 360,
+        "width": 480,
+        "color": 7
+      },
+      "id": "24799528-3f8e-5ffb-9d64-c830813239d3",
+      "name": "Section clean",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        820,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 3. Rate and save\nOpenAI rates each post; good ideas go to Sheets.",
+        "height": 560,
+        "width": 1000,
+        "color": 7
+      },
+      "id": "cf4e2bbf-ab97-5f64-93dd-bbbf445e2255",
+      "name": "Section ai",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "weeksInterval": 1,
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "5bf99436-eb7e-5c72-a55b-1814c89079db",
+      "name": "Every Monday",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -100,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f4e78e10-b075-5485-93f8-e53ea5158e3b",
+              "name": "subreddits",
+              "value": "smallbusiness, Entrepreneur, SaaS",
+              "type": "string"
+            },
+            {
+              "id": "73abdc73-e81a-58cd-b0e4-2c4880c804af",
+              "name": "phrases",
+              "value": "\"I wish there was\", \"is there a tool\", \"so frustrated with\", \"why is there no\", \"I would pay for\"",
+              "type": "string"
+            },
+            {
+              "id": "353be6c2-a6f3-5598-b55c-caf44de360a1",
+              "name": "lookback",
+              "value": "7 days",
+              "type": "string"
+            },
+            {
+              "id": "1b54a3ab-8ba8-5861-bdcc-187850658db4",
+              "name": "maxPerPhrase",
+              "value": 25,
+              "type": "number"
+            },
+            {
+              "id": "cece7e63-956b-56de-86d5-07bbed2c5088",
+              "name": "minScore",
+              "value": 7,
+              "type": "number"
+            },
+            {
+              "id": "3e9393fb-a99b-5cba-bf5d-3fa71b466731",
+              "name": "sheetTab",
+              "value": "Ideas",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "dded1f18-fa3c-5eeb-89aa-bc52d4e26829",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        120,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const cfg = $input.first().json;\nconst subs = cfg.subreddits.split(',').map((s) => s.trim()).filter(Boolean);\nreturn (subs.length ? subs : ['']).map((community) => ({ json: { ...cfg, community } }));"
+      },
+      "id": "f6a80add-ec5b-5a49-a00a-57ff2d2e7b9a",
+      "name": "One run per subreddit",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        340,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "apifyApi",
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "actorSource": "store",
+        "actorId": "harshmaur~reddit-scraper",
+        "customBody": "={{ JSON.stringify({ searchTerms: $json.phrases.split(',').map(s => s.trim()).filter(Boolean), searchPosts: true, searchComments: false, searchSort: 'new', withinCommunity: $json.community, postedAfter: $json.lookback, maxPostsCount: $json.maxPerPhrase, includeNSFW: false }, null, 2) }}",
+        "memory": 512,
+        "maxTotalChargeUsd": 2
+      },
+      "id": "82364ade-359d-528a-9e01-84330af3426b",
+      "name": "Search Reddit for pain points",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        560,
+        40
+      ],
+      "credentials": {
+        "apifyApi": {
+          "name": "Apify account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b91f2c81-823d-5dda-89db-3f04dc408980",
+              "leftValue": "={{ $json.dataType }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "rightValue": "post"
+            },
+            {
+              "id": "e760e7a0-3406-5998-8baf-a08a2cabeb44",
+              "leftValue": "={{ ($json.body || '').length }}",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "rightValue": 200
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5c9ab436-bdcd-5cb8-9451-f04edd3bd05f",
+      "name": "Keep posts with real text",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        860,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.id }}",
+        "options": {}
+      },
+      "id": "9f4c2cf3-4f46-5f48-8777-b641ecfab2bd",
+      "name": "Skip posts already checked",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        1080,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Subreddit: {{ $json.communityName }}\nTitle: {{ $json.title }}\nUpvotes: {{ $json.upVotes }}, comments: {{ $json.commentsCount }}\n\n{{ ($json.body || '').slice(0, 3000) }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a startup analyst. Read the Reddit post and decide if it shows a problem a new product or service could solve. Score 1-10: 8-10 a painful, recurring problem that people would pay to fix and that many others likely share; 5-7 a real but narrow or mild problem; 1-4 venting, news, a one-off, or already well solved by common tools. Category is one of: software, service, marketplace, content, hardware, other. Keep problem, audience and idea to one short sentence each."
+            }
+          ]
+        }
+      },
+      "id": "fa24cc79-df19-5337-ae97-165a991837e5",
+      "name": "Rate the opportunity",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1380,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "options": {}
+      },
+      "id": "ea1f530e-994e-5707-9f01-ff1e747c312f",
+      "name": "OpenAI model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1380,
+        260
+      ],
+      "credentials": {
+        "openAiApi": {
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"score\": 8,\n  \"category\": \"software\",\n  \"problem\": \"Small landlords track repairs in scattered texts and lose receipts\",\n  \"audience\": \"Landlords with 1-10 units\",\n  \"idea\": \"A shared repair log that tenants can photo-submit to\"\n}"
+      },
+      "id": "3e2d1e0f-2d8c-55c5-bac7-799466f1d062",
+      "name": "Structured output",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        1580,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map((item, i) => {\n  const p = $('Skip posts already checked').itemMatching(i).json;\n  return { json: { ...item.json.output, subreddit: p.communityName, title: p.title, upvotes: p.upVotes, comments: p.commentsCount, url: p.postUrl, foundAt: $now.toISO() } };\n});"
+      },
+      "id": "2547a23e-89e8-5068-91fc-44e283b20d65",
+      "name": "Add rating to post",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1700,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "69e6862d-ef04-5c3c-ab6c-c6a5ecca6bba",
+              "leftValue": "={{ $json.score }}",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "rightValue": "={{ $('Settings').first().json.minScore }}"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "85a1ab58-5bb3-55f1-8da2-f5a5a251877b",
+      "name": "Good ideas only",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        1920,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Settings').first().json.sheetTab }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "foundAt": "={{ $json.foundAt }}",
+            "score": "={{ $json.score }}",
+            "category": "={{ $json.category }}",
+            "problem": "={{ $json.problem }}",
+            "audience": "={{ $json.audience }}",
+            "idea": "={{ $json.idea }}",
+            "subreddit": "={{ $json.subreddit }}",
+            "title": "={{ $json.title }}",
+            "upvotes": "={{ $json.upvotes }}",
+            "comments": "={{ $json.comments }}",
+            "url": "={{ $json.url }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "foundAt",
+              "displayName": "foundAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "score",
+              "displayName": "score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "problem",
+              "displayName": "problem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "audience",
+              "displayName": "audience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "idea",
+              "displayName": "idea",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "subreddit",
+              "displayName": "subreddit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "upvotes",
+              "displayName": "upvotes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "comments",
+              "displayName": "comments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7e5b30a6-f484-504a-a2ca-066eb26a3735",
+      "name": "Save idea to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2140,
+        40
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Every Monday": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "One run per subreddit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "One run per subreddit": {
+      "main": [
+        [
+          {
+            "node": "Search Reddit for pain points",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Reddit for pain points": {
+      "main": [
+        [
+          {
+            "node": "Keep posts with real text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep posts with real text": {
+      "main": [
+        [
+          {
+            "node": "Skip posts already checked",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skip posts already checked": {
+      "main": [
+        [
+          {
+            "node": "Rate the opportunity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rate the opportunity": {
+      "main": [
+        [
+          {
+            "node": "Add rating to post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add rating to post": {
+      "main": [
+        [
+          {
+            "node": "Good ideas only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Good ideas only": {
+      "main": [
+        [
+          {
+            "node": "Save idea to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Rate the opportunity",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured output": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Rate the opportunity",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}
