@@ -31,7 +31,7 @@ Make has no public Reddit template that scores leads with AI. This recipe builds
 
 Module numbers count modules, not steps. The schedule is not a module, so Run an Actor is 1, Get Dataset Items 2, the existence check 3, Make AI 4, Parse JSON 5, Add/replace 6, Google Sheets 7 and Slack 8.
 
-Posts carry `title`, `communityName`, `postUrl` and `createdAt`. Comments carry `postTitle`, `subredditName`, `url` and `commentCreatedAt`. The `ifempty` calls cover both.
+Posts carry `title`, `communityName`, `postUrl` and `createdAt`. Comments carry `subredditName`, `url` and `commentCreatedAt`; comments from comment search also carry `postTitle`, comments collected per post do not. The `ifempty` calls cover both.
 
 Gallery listing:
 
