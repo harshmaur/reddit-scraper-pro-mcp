@@ -30,10 +30,16 @@ Apply once as a creator (free; ties templates to the Apify affiliate program if 
 - Setup steps: as above, with Google Sheets in place of Slack; create a sheet with a tab named `Leads` and pick it in the last node.
 - Categories: Sales, Lead Generation. Nodes: Schedule Trigger, Apify, Filter, Google Sheets.
 
-## State (2026-10-17)
+## State (2026-10-20)
 
-- n8n: published [20980 Send new subreddit posts to Slack with Apify Reddit scraper](https://n8n.io/workflows/20980-send-new-subreddit-posts-to-slack-with-apify-reddit-scraper/) under [creators/harshmaur](https://n8n.io/creators/harshmaur/). n8n says two more published templates make the profile a verified creator.
-- Make: [template 20007](https://www.make.com/en/templates/20007), approved by Make support on 2026-10-16.
+- n8n, published under [creators/harshmaur](https://n8n.io/creators/harshmaur/):
+  - [20980 Send new subreddit posts to Slack with Apify Reddit scraper](https://n8n.io/workflows/20980-send-new-subreddit-posts-to-slack-with-apify-reddit-scraper/)
+  - [21035 Track Reddit keyword mentions with Apify and send alerts to Slack and Gmail](https://n8n.io/workflows/21035-track-reddit-keyword-mentions-with-apify-and-send-alerts-to-slack-and-gmail/)
+- n8n, in review since 2026-10-20: the lead-scoring template. The business-ideas and brand-digest templates follow, one at a time.
+- Make, approved:
+  - [20007 Reddit keyword alerts without the Reddit API: new brand and competitor mentions to Slack daily](https://www.make.com/hq/template/20007) (approved 2026-10-16)
+  - [20018 Score Reddit buying-intent leads with AI and send hot leads to Slack](https://www.make.com/hq/template/20018) (approved 2026-10-19)
+- Make links use `make.com/hq/template/<id>`. That link opens the template after the user signs in to Make. On 2026-10-20 the public page `make.com/en/templates/<id>-<slug>` gave 404 for both templates.
 - awesome-n8n-templates: five workflows in [enescingoz/awesome-n8n-templates#262](https://github.com/enescingoz/awesome-n8n-templates/pull/262), open.
 
 ## n8n AI templates (submit as templates 2-4)
