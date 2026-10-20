@@ -1,84 +1,116 @@
 {
-  "name": "Score Reddit buying-intent leads with OpenAI and send hot leads to Slack and Google Sheets",
+  "name": "Score Reddit leads with OpenAI, draft replies from author history, and send Slack alerts and a weekly summary",
   "nodes": [
     {
       "parameters": {
-        "content": "## Score Reddit buying-intent leads with AI\n\nFor founders, agencies and sales teams who sell to people that ask Reddit for help. Every morning this workflow searches Reddit **posts and comments** for buying-intent phrases, scores each one from 0 to 100 with OpenAI, logs every scored lead to Google Sheets and sends only the hot ones to Slack.\n\nReddit data comes from the [Reddit Scraper](https://apify.com/harshmaur/reddit-scraper?fpr=tl88um) Actor on Apify, so you need **no Reddit API key or OAuth app approval**.\n\n### How it works\n1. **Every morning** runs at 08:00 and reads your phrases and product from **Settings**.\n2. **Search Reddit posts and comments** finds matches from the last day across Reddit (or one subreddit).\n3. **One shape for posts and comments** and **Skip leads already scored** clean up and drop items seen in earlier runs.\n4. **Score buying intent** asks OpenAI for a 0-100 score, the need, and a reply angle.\n5. **Log to Google Sheets** keeps every scored item. **Hot leads only** sends items at or above `minScore` to Slack.\n\n### Setup\n1. Add the **Apify** node (`@apify/n8n-nodes-apify`, a verified node) if your n8n does not have it yet.\n2. Create an **Apify API** credential with the token from [Apify Console → API & Integrations](https://console.apify.com/settings/integrations). No account yet? [Sign up free](https://console.apify.com/sign-up?fpr=tl88um); the free plan includes monthly credit.\n3. Add an **OpenAI** credential.\n4. Create a Google Sheet with a `Leads` tab and the columns `scoredAt, score, kind, subreddit, title, need, replyAngle, author, url, text`. Connect Google Sheets and pick the file.\n5. Connect Slack and pick a channel.\n6. In **Settings**, describe your product and edit `phrases` (quotes mean exact match).\n\n### Customization tips\n- Raise `minScore` to get fewer, warmer Slack alerts.\n- Set `community` to one subreddit name to search only there.\n- Reddit results cost about $2 per 1,000 on Apify. The Apify node stops each run at $2.",
-        "height": 1000,
-        "width": 620,
+        "content": "## Score Reddit buying-intent leads with AI and draft replies\n\nFor founders, agencies and sales teams who sell to people that ask Reddit for help. Every morning this workflow searches Reddit **posts and comments** for buying-intent phrases, scores each one from 0 to 100 with OpenAI and logs it to Google Sheets. For each hot lead it reads the author's recent Reddit history and drafts a reply, then sends both to Slack. Every Monday it posts a summary of the week.\n\nReddit data comes from the [Reddit Scraper](https://apify.com/harshmaur/reddit-scraper?fpr=tl88um) Actor on Apify, so you need **no Reddit API key or OAuth app approval**.\n\n### How it works\n1. **Every morning** (08:00) and **Every Monday** (09:00) start a run. **Settings** holds your product, phrases and limits. **Weekly summary run?** picks the path.\n2. **Search Reddit posts and comments** finds matches from the last day across Reddit (or one subreddit).\n3. **One shape for posts and comments** and **Skip leads already scored** clean up and drop items seen in earlier runs.\n4. **Score buying intent** asks OpenAI for a 0-100 score, the need, and a reply angle. **Log to Google Sheets** keeps every scored item.\n5. **Hot leads only** keeps items at or above `minScore`. **Read author history** gets the profile, recent posts and recent comments of every hot-lead author in one Apify run.\n6. **Draft reply** reads that history and writes a short, helpful reply plus one line on who the author is. **Alert Slack** sends the lead, the line and the draft.\n7. On Mondays, **Read leads sheet** and **Last 7 days** count the week's leads. **Summarize the week** finds the main needs, and **Post weekly summary** sends them with the best leads to Slack.\n\n### Setup\n1. Add the **Apify** node (`@apify/n8n-nodes-apify`, a verified node) if your n8n does not have it yet.\n2. Create an **Apify API** credential with the token from [Apify Console → API & Integrations](https://console.apify.com/settings/integrations). No account yet? [Sign up free](https://console.apify.com/sign-up?fpr=tl88um); the free plan includes monthly credit.\n3. Add an **OpenAI** credential and select it in the three OpenAI model nodes.\n4. Create a Google Sheet with a `Leads` tab and the columns `scoredAt, score, kind, subreddit, title, need, replyAngle, author, url, text`. Connect Google Sheets and pick the file in **Log to Google Sheets** and **Read leads sheet**.\n5. Connect Slack and pick a channel in **Alert Slack** and **Post weekly summary**.\n6. In **Settings**, describe your product and edit `phrases` (quotes mean exact match).\n\n### Customization tips\n- Raise `minScore` to get fewer, warmer Slack alerts and fewer author-history lookups.\n- Set `community` to one subreddit name to search only there.\n- `historyPosts` and `historyComments` set how much of each author's history the reply step reads.\n- Reddit results cost about $2 per 1,000 on Apify. Author history adds up to 16 results (at most about $0.03) for each hot lead. The search run stops at $2 and the history run at $1.",
+        "height": 1460,
+        "width": 700,
         "color": 1
       },
-      "id": "2f3e5a25-3ca9-566e-b7e4-e60fe053cf6f",
+      "id": "58b35155-36c1-524b-be84-18821b498df2",
       "name": "Overview",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -820,
-        -380
+        -900,
+        -400
       ]
     },
     {
       "parameters": {
         "content": "## 1. Search Reddit\nPosts and comments from the last day, one Apify run.",
-        "height": 360,
-        "width": 700,
+        "height": 400,
+        "width": 260,
         "color": 7
       },
-      "id": "1c69ba89-1462-54fb-a117-d21adf221b9f",
+      "id": "e941ec7a-0e6c-51b3-ab8b-f82203559878",
       "name": "Section fetch",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -140,
+        520,
         -160
       ]
     },
     {
       "parameters": {
         "content": "## 2. Clean and de-duplicate",
-        "height": 360,
-        "width": 480,
+        "height": 400,
+        "width": 420,
         "color": 7
       },
-      "id": "3725bea9-b925-531f-9077-62222c651b3d",
+      "id": "e7567f65-0411-57f7-bcfa-dbc019643366",
       "name": "Section clean",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        600,
+        800,
         -160
       ]
     },
     {
       "parameters": {
         "content": "## 3. Score with AI\nOpenAI returns score, need and reply angle.",
-        "height": 560,
+        "height": 600,
         "width": 520,
         "color": 7
       },
-      "id": "c94c1dcc-7f15-54c9-aad5-235e3848f188",
+      "id": "3713d693-8ceb-5fb7-9e0d-e81d14181624",
       "name": "Section score",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1120,
+        1240,
         -160
       ]
     },
     {
       "parameters": {
-        "content": "## 4. Log and alert",
-        "height": 560,
-        "width": 520,
+        "content": "## 4. Log every lead, keep the hot ones",
+        "height": 640,
+        "width": 240,
         "color": 7
       },
-      "id": "d1461572-71dc-5033-9c4f-0c1736bd5fcb",
+      "id": "ccac06a3-12ad-55af-8e40-9c1eabfc63f0",
       "name": "Section deliver",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1680,
+        1780,
+        -260
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 5. Author history and reply draft\nOne Apify run reads every hot-lead author's profile, posts and comments. OpenAI drafts a reply with that context. Slack gets the lead and the draft.",
+        "height": 640,
+        "width": 1440,
+        "color": 7
+      },
+      "id": "ce6e2f02-e293-56fb-93e5-c54844ffe783",
+      "name": "Section reply",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2040,
         -160
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 6. Weekly summary (Mondays)\nReads the sheet, counts the last 7 days, and posts the main needs and the best leads.",
+        "height": 560,
+        "width": 960,
+        "color": 7
+      },
+      "id": "341e11ac-ff37-59ba-abd4-2de2a6c61207",
+      "name": "Section weekly",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        520,
+        480
       ]
     },
     {
@@ -98,8 +130,32 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        -100,
-        40
+        -120,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "weeksInterval": 1,
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "id": "4db888b4-9311-5cf5-85a4-d14fb3296c0d",
+      "name": "Every Monday",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -120,
+        200
       ]
     },
     {
@@ -147,6 +203,18 @@
               "name": "sheetTab",
               "value": "Leads",
               "type": "string"
+            },
+            {
+              "id": "076bf0bb-e166-5526-b501-e6955b19ba87",
+              "name": "historyPosts",
+              "value": 5,
+              "type": "number"
+            },
+            {
+              "id": "3d453be5-59e3-5a88-9922-94f5ea360dc1",
+              "name": "historyComments",
+              "value": 10,
+              "type": "number"
             }
           ]
         },
@@ -157,8 +225,42 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        120,
-        40
+        100,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a944a443-d17f-5455-9763-90b6e73d7a5d",
+              "leftValue": "={{ $('Every Monday').isExecuted }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "9ebaf77a-bc9d-5e34-9898-c025e6c2ab9c",
+      "name": "Weekly summary run?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        320,
+        100
       ]
     },
     {
@@ -177,8 +279,8 @@
       "type": "@apify/n8n-nodes-apify.apify",
       "typeVersion": 1,
       "position": [
-        340,
-        40
+        560,
+        0
       ],
       "credentials": {
         "apifyApi": {
@@ -195,8 +297,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        640,
-        40
+        840,
+        0
       ]
     },
     {
@@ -210,8 +312,8 @@
       "type": "n8n-nodes-base.removeDuplicates",
       "typeVersion": 2,
       "position": [
-        860,
-        40
+        1040,
+        0
       ]
     },
     {
@@ -232,8 +334,8 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.7,
       "position": [
-        1160,
-        40
+        1280,
+        0
       ]
     },
     {
@@ -246,12 +348,12 @@
         "options": {}
       },
       "id": "f6f0b768-ba2c-50c3-8425-b7f5f5899425",
-      "name": "OpenAI model",
+      "name": "OpenAI model (score)",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
       "position": [
-        1160,
-        260
+        1280,
+        220
       ],
       "credentials": {
         "openAiApi": {
@@ -264,12 +366,12 @@
         "jsonSchemaExample": "{\n  \"score\": 85,\n  \"need\": \"Wants an app that lets clients book haircuts online\",\n  \"replyAngle\": \"Ask how many chairs they run and share what worked for similar salons\"\n}"
       },
       "id": "22113215-ae01-58f5-8e13-bd1d00c1fccd",
-      "name": "Structured output",
+      "name": "Score format",
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.2,
       "position": [
-        1360,
-        260
+        1460,
+        220
       ]
     },
     {
@@ -281,8 +383,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1480,
-        40
+        1600,
+        0
       ]
     },
     {
@@ -408,15 +510,17 @@
             }
           ]
         },
-        "options": {}
+        "options": {
+          "cellFormat": "RAW"
+        }
       },
       "id": "6161212f-5b25-526d-9982-cfb820e72d87",
       "name": "Log to Google Sheets",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        1760,
-        -60
+        1820,
+        -100
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -453,8 +557,131 @@
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.2,
       "position": [
-        1760,
-        160
+        1820,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// One Apify run for all authors: one profile URL per unique author.\nconst authors = [...new Set($input.all().map((i) => i.json.author).filter((a) => a && a !== '[deleted]'))];\nreturn [{ json: { startUrls: authors.map((a) => ({ url: `https://www.reddit.com/user/${a}/` })) } }];"
+      },
+      "id": "2682f351-e8b5-5c3a-bdeb-52c84d5bf5c0",
+      "name": "List hot-lead authors",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2080,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "apifyApi",
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "actorSource": "store",
+        "actorId": "harshmaur~reddit-scraper",
+        "customBody": "={{ JSON.stringify({ startUrls: $json.startUrls, searchPosts: false, maxPostsCount: $('Settings').first().json.historyPosts, maxCommentsCount: $('Settings').first().json.historyComments, includeNSFW: false }, null, 2) }}",
+        "memory": 512,
+        "maxTotalChargeUsd": 1
+      },
+      "id": "2d576d9e-f758-5085-aac1-8703609c171c",
+      "name": "Read author history",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        2300,
+        140
+      ],
+      "credentials": {
+        "apifyApi": {
+          "name": "Apify account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Group the history by author, then add it to each hot lead as plain text.\nconst byAuthor = {};\nfor (const { json: r } of $input.all()) {\n  const name = (r.dataType === 'user_profile' ? r.username : r.authorName ?? '').toLowerCase();\n  if (!name) continue;\n  const a = (byAuthor[name] ??= { profile: null, lines: [] });\n  if (r.dataType === 'user_profile') a.profile = r;\n  if (r.dataType === 'post') a.lines.push(`Post in ${r.communityName}: ${r.title}`);\n  if (r.dataType === 'comment') a.lines.push(`Comment in r/${r.subredditName}: ${String(r.body ?? '').slice(0, 200)}`);\n}\nreturn $('Hot leads only').all().map(({ json: lead }) => {\n  const a = byAuthor[lead.author.toLowerCase()];\n  const p = a?.profile;\n  const about = p\n    ? `Account since ${String(p.createdAt ?? '').slice(0, 10)}, ${p.totalKarma ?? 0} karma${p.bio ? `, bio: ${p.bio}` : ''}`\n    : 'No public profile found';\n  return { json: { ...lead, authorHistory: [about, ...(a?.lines ?? [])].join('\\n').slice(0, 3000) } };\n});"
+      },
+      "id": "741e5e28-88b5-5095-bac8-dd8e88cedb81",
+      "name": "Attach author history",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2520,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=We sell: {{ $('Settings').first().json.product }}\n\nReddit {{ $json.kind }} in {{ $json.subreddit }}\nThread: {{ $json.title }}\n\n{{ $json.text }}\n\nTheir need: {{ $json.need }}\nSuggested angle: {{ $json.replyAngle }}\n\nThe author's profile and recent Reddit activity:\n{{ $json.authorHistory }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You help a founder reply to a Reddit lead. Use the author's history only to understand them: their role, the tools they use, what they already tried, how they write. Never say that you read their history. Write the reply in 2 to 4 sentences, in a plain Reddit tone. Help first: answer the question or share a useful tip. Mention our product at most once, only if it fits, with no link and no hype. Return authorContext as one short sentence about who the author seems to be."
+            }
+          ]
+        }
+      },
+      "id": "8d26611e-0ad7-5d52-adde-3d45cfe3c682",
+      "name": "Draft reply",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        2740,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "options": {}
+      },
+      "id": "a5c638ec-c555-5603-a37b-7b2497b4f622",
+      "name": "OpenAI model (reply)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2740,
+        360
+      ],
+      "credentials": {
+        "openAiApi": {
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"authorContext\": \"Owns a two-chair barbershop and has tried Square Appointments\",\n  \"reply\": \"We had the same no-show problem. Text reminders the day before cut ours by half, and most booking apps can send them. What do you use for payments now?\"\n}"
+      },
+      "id": "79376bbf-b202-58b4-b0b4-a8d3fba0fe7f",
+      "name": "Reply format",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        2920,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map((item, i) => ({\n  json: { ...$('Attach author history').itemMatching(i).json, ...item.json.output },\n}));"
+      },
+      "id": "7059c519-a8b3-5700-ba34-111271bf2fbc",
+      "name": "Add reply to lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3080,
+        140
       ]
     },
     {
@@ -469,7 +696,7 @@
           "value": ""
         },
         "messageType": "text",
-        "text": "=:fire: *{{ $json.score }}/100* Reddit lead in {{ $json.subreddit }} ({{ $json.kind }})\n*<{{ $json.url }}|{{ $json.title.replace(/[<>|]/g, '') }}>*\n_Need:_ {{ $json.need }}\n_Reply angle:_ {{ $json.replyAngle }}",
+        "text": "=:fire: *{{ $json.score }}/100* Reddit lead in {{ $json.subreddit }} ({{ $json.kind }})\n*<{{ $json.url }}|{{ $json.title.replace(/[<>|]/g, '') }}>*\n_Need:_ {{ $json.need }}\n_Who:_ {{ $json.authorContext }}\n_Draft reply:_\n>{{ $json.reply.replace(/\\n+/g, ' ') }}",
         "otherOptions": {
           "unfurl_links": false,
           "includeLinkToWorkflow": false
@@ -480,8 +707,129 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
-        1980,
-        160
+        3300,
+        140
+      ],
+      "credentials": {
+        "slackApi": {
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Settings').first().json.sheetTab }}"
+        },
+        "options": {}
+      },
+      "id": "8c5f1d06-2e5f-598a-8d14-5c50a35fb908",
+      "name": "Read leads sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        560,
+        600
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const { minScore } = $('Settings').first().json;\nconst since = $now.minus({ days: 7 });\nconst leads = $input.all().map((i) => i.json)\n  .filter((r) => r.scoredAt && DateTime.fromISO(r.scoredAt) >= since);\nconst hot = leads.filter((r) => Number(r.score) >= minScore).sort((a, b) => b.score - a.score);\nconst bySub = {};\nfor (const r of leads) bySub[r.subreddit] = (bySub[r.subreddit] ?? 0) + 1;\nreturn [{\n  json: {\n    total: leads.length,\n    hotCount: hot.length,\n    topSubreddits: Object.entries(bySub).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([s, n]) => `${s} (${n})`).join(', ') || 'none',\n    bestLeads: hot.slice(0, 5).map((r) => `• ${r.score}/100 <${r.url}|${String(r.title).replace(/[<>|]/g, '')}>`).join('\\n') || 'No hot leads this week.',\n    needs: leads.filter((r) => Number(r.score) >= 50).slice(0, 100).map((r) => `- ${r.need}`).join('\\n'),\n  },\n}];"
+      },
+      "id": "1d165357-4606-570d-ac27-d7a51483a46b",
+      "name": "Last 7 days",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        780,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=We sell: {{ $('Settings').first().json.product }}\n\nNeeds from this week's Reddit leads:\n{{ $json.needs || '(none)' }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You write a short weekly Reddit lead report for a founder, in Slack mrkdwn. Group the needs into the 3 most common themes, each with a rough count. Then give one suggestion for the product or the marketing message. Use at most 120 words. If there are no needs, say that no leads scored 50 or more this week."
+            }
+          ]
+        }
+      },
+      "id": "0c69c96c-2707-56d1-aa98-46af4a2296d4",
+      "name": "Summarize the week",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1000,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "options": {}
+      },
+      "id": "c18abacb-65af-51e6-addc-6b5651b1b155",
+      "name": "OpenAI model (summary)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1000,
+        820
+      ],
+      "credentials": {
+        "openAiApi": {
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "resource": "message",
+        "operation": "post",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "messageType": "text",
+        "text": "=:bar_chart: *Reddit leads, last 7 days:* {{ $('Last 7 days').first().json.total }} scored, {{ $('Last 7 days').first().json.hotCount }} hot\n_Top subreddits:_ {{ $('Last 7 days').first().json.topSubreddits }}\n\n{{ $json.text }}\n\n*Best leads*\n{{ $('Last 7 days').first().json.bestLeads }}",
+        "otherOptions": {
+          "unfurl_links": false,
+          "includeLinkToWorkflow": false
+        }
+      },
+      "id": "69b4f405-8138-59b1-a06d-22815d35397d",
+      "name": "Post weekly summary",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1300,
+        600
       ],
       "credentials": {
         "slackApi": {
@@ -502,8 +850,37 @@
         ]
       ]
     },
+    "Every Monday": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "Settings": {
       "main": [
+        [
+          {
+            "node": "Weekly summary run?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly summary run?": {
+      "main": [
+        [
+          {
+            "node": "Read leads sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
         [
           {
             "node": "Search Reddit posts and comments",
@@ -577,6 +954,61 @@
       "main": [
         [
           {
+            "node": "List hot-lead authors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List hot-lead authors": {
+      "main": [
+        [
+          {
+            "node": "Read author history",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read author history": {
+      "main": [
+        [
+          {
+            "node": "Attach author history",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attach author history": {
+      "main": [
+        [
+          {
+            "node": "Draft reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft reply": {
+      "main": [
+        [
+          {
+            "node": "Add reply to lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add reply to lead": {
+      "main": [
+        [
+          {
             "node": "Alert Slack",
             "type": "main",
             "index": 0
@@ -584,7 +1016,40 @@
         ]
       ]
     },
-    "OpenAI model": {
+    "Read leads sheet": {
+      "main": [
+        [
+          {
+            "node": "Last 7 days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Last 7 days": {
+      "main": [
+        [
+          {
+            "node": "Summarize the week",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize the week": {
+      "main": [
+        [
+          {
+            "node": "Post weekly summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI model (score)": {
       "ai_languageModel": [
         [
           {
@@ -595,12 +1060,45 @@
         ]
       ]
     },
-    "Structured output": {
+    "Score format": {
       "ai_outputParser": [
         [
           {
             "node": "Score buying intent",
             "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI model (reply)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Draft reply",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply format": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Draft reply",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI model (summary)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarize the week",
+            "type": "ai_languageModel",
             "index": 0
           }
         ]

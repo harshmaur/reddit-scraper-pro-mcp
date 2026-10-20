@@ -35,7 +35,7 @@ Apply once as a creator (free; ties templates to the Apify affiliate program if 
 - n8n, published under [creators/harshmaur](https://n8n.io/creators/harshmaur/):
   - [20980 Send new subreddit posts to Slack with Apify Reddit scraper](https://n8n.io/workflows/20980-send-new-subreddit-posts-to-slack-with-apify-reddit-scraper/)
   - [21035 Track Reddit keyword mentions with Apify and send alerts to Slack and Gmail](https://n8n.io/workflows/21035-track-reddit-keyword-mentions-with-apify-and-send-alerts-to-slack-and-gmail/)
-- n8n, in review since 2026-10-20: the lead-scoring template. The business-ideas and brand-digest templates follow, one at a time.
+- n8n: the lead-scoring template (portal draft 21329) was rejected on 2026-10-20 as "too basic". The richer version below adds author history, an AI reply draft and a weekly Slack summary, and goes back for review. The business-ideas and brand-digest templates follow, one at a time.
 - Make, approved:
   - [20007 Reddit keyword alerts without the Reddit API: new brand and competitor mentions to Slack daily](https://www.make.com/hq/template/20007) (approved 2026-10-16)
   - [20018 Score Reddit buying-intent leads with AI and send hot leads to Slack](https://www.make.com/hq/template/20018) (approved 2026-10-19)
@@ -46,7 +46,7 @@ Apply once as a creator (free; ties templates to the Apify affiliate program if 
 
 Each one opens with an overview sticky note in n8n's "How it works / Setup / Customization" format, so the template page and the canvas show the same text. Paste that note as the description.
 
-**Score Reddit buying-intent leads with OpenAI and send hot leads to Slack and Google Sheets** — `n8n/reddit-buying-intent-lead-scoring-to-slack-and-sheets.json`. Categories: Sales, Lead Generation, AI. Nodes: Schedule Trigger, Set, Apify, Code, Remove Duplicates, Basic LLM Chain, OpenAI Chat Model, Structured Output Parser, Google Sheets, Filter, Slack.
+**Score Reddit leads with OpenAI, draft replies from author history, and send Slack alerts and a weekly summary** — `n8n/reddit-buying-intent-lead-scoring-to-slack-and-sheets.json`. Categories: Sales, Lead Generation, AI. Nodes: Schedule Trigger, Set, If, Apify, Code, Remove Duplicates, Basic LLM Chain, OpenAI Chat Model, Structured Output Parser, Google Sheets, Filter, Slack.
 
 **Find business ideas in Reddit pain points with Apify, OpenAI and Google Sheets** — `n8n/reddit-business-ideas-from-pain-points-to-google-sheets.json`. Categories: Market Research, AI. Nodes: Schedule Trigger, Set, Code, Apify, Filter, Remove Duplicates, Basic LLM Chain, OpenAI Chat Model, Structured Output Parser, Google Sheets.
 
