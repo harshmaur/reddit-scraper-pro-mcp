@@ -6,7 +6,7 @@ Import any JSON in n8n (**Workflows → Import from file**), then set two creden
 | --- | --- |
 | `reddit-brand-monitoring-to-slack.json` | Every 24 h, searches Reddit for your brand and competitor terms posted in the last day and posts each new thread to a Slack channel you pick. |
 | `reddit-lead-alerts-to-google-sheets.json` | Every 24 h, finds "looking for a tool" / "alternative to" style posts inside one subreddit and appends them as rows to a Google Sheet. |
-| `reddit-buying-intent-lead-scoring-to-slack-and-sheets.json` | Every morning, searches Reddit posts **and comments** for buying-intent phrases, scores each from 0 to 100 with OpenAI, logs all to Google Sheets and sends leads at or above `minScore` to Slack. |
+| `reddit-buying-intent-lead-scoring-to-slack-and-sheets.json` | Every morning, searches Reddit posts **and comments** for buying-intent phrases, scores each from 0 to 100 with OpenAI and logs all to Google Sheets. For each lead at or above `minScore`, reads the author's recent Reddit history, drafts a reply with OpenAI and sends both to Slack. Every Monday, posts a weekly summary of needs and best leads to Slack. |
 | `reddit-business-ideas-from-pain-points-to-google-sheets.json` | Every Monday, collects last week's "I wish there was" style posts from your subreddits, has OpenAI rate each as a business opportunity, and saves the good ones to Google Sheets. |
 | `reddit-brand-mention-digest-to-slack.json` | Every morning, collects yesterday's posts and comments that mention your brand and competitors, and OpenAI writes one Slack digest: volume, sentiment, themes and threads to answer. |
 
