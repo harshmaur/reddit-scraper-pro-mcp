@@ -61,6 +61,8 @@ Every item carries `dataType` (`post`, `comment`, `community`, `user_profile`); 
 
 - [`templates/n8n/`](templates/n8n/) — importable n8n workflows: Reddit mentions → Slack, Reddit lead alerts → Google Sheets.
 - [`templates/make/`](templates/make/) — Make scenario recipe for Slack, Notion or Sheets.
+- Published n8n templates: [new subreddit posts to Slack](https://n8n.io/workflows/20980-send-new-subreddit-posts-to-slack-with-apify-reddit-scraper/), [Reddit keyword mentions to Slack and Gmail](https://n8n.io/workflows/21035-track-reddit-keyword-mentions-with-apify-and-send-alerts-to-slack-and-gmail/).
+- Published Make templates: [daily Reddit keyword alerts to Slack](https://www.make.com/hq/template/20007), [AI lead scoring to Slack](https://www.make.com/hq/template/20018).
 
 The Actor can also deliver results itself (Slack, Notion, Airtable, Sheets) through its `mcpConnector` input, with an Apify Schedule as the trigger, if you prefer no middleware.
 
