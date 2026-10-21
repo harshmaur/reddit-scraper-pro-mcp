@@ -30,12 +30,12 @@ Apply once as a creator (free; ties templates to the Apify affiliate program if 
 - Setup steps: as above, with Google Sheets in place of Slack; create a sheet with a tab named `Leads` and pick it in the last node.
 - Categories: Sales, Lead Generation. Nodes: Schedule Trigger, Apify, Filter, Google Sheets.
 
-## State (2026-10-20)
+## State (2026-10-21)
 
 - n8n, published under [creators/harshmaur](https://n8n.io/creators/harshmaur/):
   - [20980 Send new subreddit posts to Slack with Apify Reddit scraper](https://n8n.io/workflows/20980-send-new-subreddit-posts-to-slack-with-apify-reddit-scraper/)
   - [21035 Track Reddit keyword mentions with Apify and send alerts to Slack and Gmail](https://n8n.io/workflows/21035-track-reddit-keyword-mentions-with-apify-and-send-alerts-to-slack-and-gmail/)
-- n8n: the lead-scoring template (portal draft 21329) was rejected on 2026-10-20 as "too basic". The richer version below adds author history, an AI reply draft and a weekly Slack summary, and goes back for review. The business-ideas and brand-digest templates follow, one at a time.
+- n8n: richer lead scoring (21329), "Score Reddit buying-intent leads with Apify, OpenAI, Google Sheets and Slack", was published on 2026-10-20. Business ideas v2 is ready for approval; it has not been submitted. Brand digest waits until business ideas is published.
 - Make, approved:
   - [20007 Reddit keyword alerts without the Reddit API: new brand and competitor mentions to Slack daily](https://www.make.com/hq/template/20007) (approved 2026-10-16)
   - [20018 Score Reddit buying-intent leads with AI and send hot leads to Slack](https://www.make.com/hq/template/20018) (approved 2026-10-19)
@@ -44,13 +44,52 @@ Apply once as a creator (free; ties templates to the Apify affiliate program if 
 
 ## n8n AI templates (submit as templates 2-4)
 
-Each one opens with an overview sticky note in n8n's "How it works / Setup / Customization" format, so the template page and the canvas show the same text. Paste that note as the description.
+Each template opens with an Overview canvas note. Copy its text into the matching portal fields: Quick overview (50 words or fewer), How it works, Setup, Customization and Additional info. After the AI check, replace any AI-written text with the approved text before selecting **Submit for human review**.
 
 **Score Reddit leads with OpenAI, draft replies from author history, and send Slack alerts and a weekly summary** — `n8n/reddit-buying-intent-lead-scoring-to-slack-and-sheets.json`. Categories: Sales, Lead Generation, AI. Nodes: Schedule Trigger, Set, If, Apify, Code, Remove Duplicates, Basic LLM Chain, OpenAI Chat Model, Structured Output Parser, Google Sheets, Filter, Slack.
 
-**Find business ideas in Reddit pain points with Apify, OpenAI and Google Sheets** — `n8n/reddit-business-ideas-from-pain-points-to-google-sheets.json`. Categories: Market Research, AI. Nodes: Schedule Trigger, Set, Code, Apify, Filter, Remove Duplicates, Basic LLM Chain, OpenAI Chat Model, Structured Output Parser, Google Sheets.
+**Find and validate business ideas from Reddit pain points with OpenAI, Google Sheets and a weekly Slack brief** — `n8n/reddit-business-ideas-from-pain-points-to-google-sheets.json`. Categories: Market Research, AI. Nodes: Schedule Trigger, Set, Code, Apify, Filter, Remove Duplicates, Basic LLM Chain, OpenAI Chat Model, Structured Output Parser, Google Sheets, Slack.
 
 **Send a daily Reddit brand mention digest with AI sentiment to Slack, from posts and comments** — `n8n/reddit-brand-mention-digest-to-slack.json`. Categories: Marketing, Social Media Monitoring, AI. Nodes: Schedule Trigger, Set, Apify, Code, Remove Duplicates, If, Basic LLM Chain, OpenAI Chat Model, Slack.
+
+### Business ideas v2 — approved-text candidate
+
+Use the name above if the portal allows a name change. The portal can set the title from the workflow.
+
+**Quick overview (39 words)**
+
+Every Monday this workflow finds Reddit posts where people complain or wish for a tool and rates each idea with OpenAI. It reads the comments on the best ones to check demand, then sends a weekly brief to Slack.
+
+**How it works**
+
+1. **Every Monday** (08:00) reads your phrases, subreddits and limits from **Settings**.
+2. **Search Reddit for pain points** finds posts from the last 7 days that match phrases like "I wish there was" or "so frustrated with", in each subreddit you list.
+3. **Keep posts with real text** drops link posts and one-liners. **Skip posts already checked** drops posts from earlier runs.
+4. **Rate the opportunity** asks OpenAI for the problem, who has it, a product idea and a first 1-10 score. **Good ideas only** keeps scores at or above `minScore`, and **Top ideas only** keeps the best `maxIdeas`.
+5. **Read thread comments** gets the top comments of those ideas in one Apify run.
+6. **Validate with comments** reads them and returns the demand evidence, the tools people already use, the gap, a small first product, a first test and a new score. **Still good after comments** drops ideas that fall below `minScore`, and **Save idea to Google Sheets** keeps the rest.
+7. **Read earlier ideas** loads the sheet. **Write the weekly brief** ranks this week's ideas, picks one to test and names problems that also came up in earlier weeks. **Post brief to Slack** sends it.
+
+**Setup**
+
+1. Add the **Apify** node (`@apify/n8n-nodes-apify`, a verified node) if your n8n does not have it yet.
+2. Create an **Apify API** credential with the token from [Apify Console → API & Integrations](https://console.apify.com/settings/integrations). No account yet? [Sign up free](https://console.apify.com/sign-up?fpr=tl88um); the free plan includes monthly credit.
+3. Add an **OpenAI** credential and select it in the three OpenAI model nodes.
+4. Create a Google Sheet with an `Ideas` tab and the columns `foundAt, score, firstScore, category, problem, audience, idea, demand, existingTools, gap, mvp, firstTest, subreddit, title, upvotes, comments, url`. Connect Google Sheets and pick the file in **Save idea to Google Sheets** and **Read earlier ideas**.
+5. Connect Slack and pick a channel in **Post brief to Slack**.
+6. Edit `subreddits` and `phrases` in **Settings**.
+
+**Customization**
+
+- Leave `subreddits` empty to search all of Reddit.
+- Put a phrase in quotes for an exact match. Exact phrases find far fewer posts, so keep them for busy subreddits.
+- Change the scoring rules in **Rate the opportunity** and **Validate with comments** to fit B2B, consumer or local businesses.
+- `maxIdeas` and `commentsPerPost` set how many ideas get validated and how many comments each one reads.
+- Reddit results cost about $2 per 1,000 on Apify. Comments add up to `commentsPerPost` + 1 results for each validated idea (up to 260 results, about $0.52 before start fees, at the default limits). Each subreddit search run has a $2 cap; the comment run has a $1 cap. OpenAI costs are separate.
+
+**Additional info**
+
+For founders, indie hackers and product teams who look for problems worth solving. Reddit data comes from the [Reddit Scraper](https://apify.com/harshmaur/reddit-scraper?fpr=tl88um) Actor on Apify, so you need **no Reddit API key or OAuth app approval**.
 
 ## Make AI template
 

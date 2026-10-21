@@ -1,20 +1,20 @@
 {
-  "name": "Find business ideas in Reddit pain points with Apify, OpenAI and Google Sheets",
+  "name": "Find and validate business ideas from Reddit pain points with OpenAI, Google Sheets and a weekly Slack brief",
   "nodes": [
     {
       "parameters": {
-        "content": "## Find business ideas in Reddit pain points\n\nFor founders, indie hackers and product teams who look for problems worth solving. Every Monday this workflow collects last week's Reddit posts where people complain or wish for a tool, asks OpenAI whether each one is a real business opportunity, and saves the good ones to Google Sheets.\n\nReddit data comes from the [Reddit Scraper](https://apify.com/harshmaur/reddit-scraper?fpr=tl88um) Actor on Apify, so you need **no Reddit API key or OAuth app approval**. Templates built on the native Reddit node stop at Reddit's API approval step; this one does not.\n\n### How it works\n1. **Every Monday** reads your phrases and subreddits from **Settings**.\n2. **Search Reddit for pain points** finds posts from the last 7 days that use phrases like \"I wish there was\" or \"so frustrated with\", in each subreddit you list.\n3. **Keep posts with real text** drops link posts and one-liners. **Skip posts already checked** drops posts from earlier runs.\n4. **Rate the opportunity** asks OpenAI for the problem, who has it, a product idea and a 1-10 score.\n5. **Good ideas only** keeps scores at or above `minScore` and appends them to Google Sheets.\n\n### Setup\n1. Add the **Apify** node (`@apify/n8n-nodes-apify`, a verified node) if your n8n does not have it yet.\n2. Create an **Apify API** credential with the token from [Apify Console → API & Integrations](https://console.apify.com/settings/integrations). No account yet? [Sign up free](https://console.apify.com/sign-up?fpr=tl88um); the free plan includes monthly credit.\n3. Add an **OpenAI** credential.\n4. Create a Google Sheet with an `Ideas` tab and the columns `foundAt, score, category, problem, audience, idea, subreddit, title, upvotes, comments, url`. Connect Google Sheets and pick the file.\n5. Edit `subreddits` and `phrases` in **Settings**.\n\n### Customization tips\n- Leave `subreddits` empty to search all of Reddit.\n- Change the scoring rules in **Rate the opportunity** to fit B2B, consumer or local businesses.\n- Reddit results cost about $2 per 1,000 on Apify. The Apify node stops each run at $2.",
-        "height": 1000,
-        "width": 620,
+        "content": "## Find and validate business ideas in Reddit pain points\n\nEvery Monday this workflow finds Reddit posts where people complain or wish for a tool and rates each idea with OpenAI. It reads the comments on the best ones to check demand, then sends a weekly brief to Slack.\n\n### Additional info\nFor founders, indie hackers and product teams who look for problems worth solving. Reddit data comes from the [Reddit Scraper](https://apify.com/harshmaur/reddit-scraper?fpr=tl88um) Actor on Apify, so you need **no Reddit API key or OAuth app approval**.\n\n### How it works\n1. **Every Monday** (08:00) reads your phrases, subreddits and limits from **Settings**.\n2. **Search Reddit for pain points** finds posts from the last 7 days that match phrases like \"I wish there was\" or \"so frustrated with\", in each subreddit you list.\n3. **Keep posts with real text** drops link posts and one-liners. **Skip posts already checked** drops posts from earlier runs.\n4. **Rate the opportunity** asks OpenAI for the problem, who has it, a product idea and a first 1-10 score. **Good ideas only** keeps scores at or above `minScore`, and **Top ideas only** keeps the best `maxIdeas`.\n5. **Read thread comments** gets the top comments of those ideas in one Apify run.\n6. **Validate with comments** reads them and returns the demand evidence, the tools people already use, the gap, a small first product, a first test and a new score. **Still good after comments** drops ideas that fall below `minScore`, and **Save idea to Google Sheets** keeps the rest.\n7. **Read earlier ideas** loads the sheet. **Write the weekly brief** ranks this week's ideas, picks one to test and names problems that also came up in earlier weeks. **Post brief to Slack** sends it.\n\n### Setup\n1. Add the **Apify** node (`@apify/n8n-nodes-apify`, a verified node) if your n8n does not have it yet.\n2. Create an **Apify API** credential with the token from [Apify Console → API & Integrations](https://console.apify.com/settings/integrations). No account yet? [Sign up free](https://console.apify.com/sign-up?fpr=tl88um); the free plan includes monthly credit.\n3. Add an **OpenAI** credential and select it in the three OpenAI model nodes.\n4. Create a Google Sheet with an `Ideas` tab and the columns `foundAt, score, firstScore, category, problem, audience, idea, demand, existingTools, gap, mvp, firstTest, subreddit, title, upvotes, comments, url`. Connect Google Sheets and pick the file in **Save idea to Google Sheets** and **Read earlier ideas**.\n5. Connect Slack and pick a channel in **Post brief to Slack**.\n6. Edit `subreddits` and `phrases` in **Settings**.\n\n### Customization tips\n- Leave `subreddits` empty to search all of Reddit.\n- Put a phrase in quotes for an exact match. Exact phrases find far fewer posts, so keep them for busy subreddits.\n- Change the scoring rules in **Rate the opportunity** and **Validate with comments** to fit B2B, consumer or local businesses.\n- `maxIdeas` and `commentsPerPost` set how many ideas get validated and how many comments each one reads.\n- Reddit results cost about $2 per 1,000 on Apify. Comments add up to `commentsPerPost` + 1 results for each validated idea (up to 260 results, about $0.52 before start fees, at the default limits). Each subreddit search run has a $2 cap; the comment run has a $1 cap. OpenAI costs are separate.",
+        "height": 1500,
+        "width": 700,
         "color": 1
       },
-      "id": "a0be55a8-6380-5e08-8783-797c42d2ed8c",
+      "id": "e6873739-bf8d-54d7-88e7-df99c46bcd65",
       "name": "Overview",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -820,
-        -380
+        -900,
+        -400
       ]
     },
     {
@@ -24,7 +24,7 @@
         "width": 920,
         "color": 7
       },
-      "id": "f551d474-68c3-5986-b549-43857c23a1b2",
+      "id": "c96d6969-0057-58bd-a9ca-342b05100290",
       "name": "Section fetch",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
@@ -40,7 +40,7 @@
         "width": 480,
         "color": 7
       },
-      "id": "24799528-3f8e-5ffb-9d64-c830813239d3",
+      "id": "56861215-69a9-56ee-8cdf-afeea73237a0",
       "name": "Section clean",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
@@ -51,17 +51,49 @@
     },
     {
       "parameters": {
-        "content": "## 3. Rate and save\nOpenAI rates each post; good ideas go to Sheets.",
+        "content": "## 3. First rating\nOpenAI rates each post. Only good ideas go on.",
         "height": 560,
-        "width": 1000,
+        "width": 780,
         "color": 7
       },
-      "id": "cf4e2bbf-ab97-5f64-93dd-bbbf445e2255",
+      "id": "a8d4b288-5786-51fd-94ae-a0fe1cc37a43",
       "name": "Section ai",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
         1340,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 4. Validate with thread comments\nOne Apify run reads the top comments of every good idea. OpenAI checks demand, existing tools and the gap, and suggests a first product and test.",
+        "height": 560,
+        "width": 1400,
+        "color": 7
+      },
+      "id": "ea7361bc-9e40-5a41-9af9-9e109f95bb25",
+      "name": "Section validate",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2160,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 5. Weekly brief\nCompares this week with earlier weeks in the sheet and posts a short brief to Slack.",
+        "height": 560,
+        "width": 1120,
+        "color": 7
+      },
+      "id": "e2556dff-228a-5beb-8442-0e5be4a73181",
+      "name": "Section brief",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3600,
         -160
       ]
     },
@@ -86,59 +118,6 @@
       "typeVersion": 1.2,
       "position": [
         -100,
-        40
-      ]
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "f4e78e10-b075-5485-93f8-e53ea5158e3b",
-              "name": "subreddits",
-              "value": "smallbusiness, Entrepreneur, SaaS",
-              "type": "string"
-            },
-            {
-              "id": "73abdc73-e81a-58cd-b0e4-2c4880c804af",
-              "name": "phrases",
-              "value": "\"I wish there was\", \"is there a tool\", \"so frustrated with\", \"why is there no\", \"I would pay for\"",
-              "type": "string"
-            },
-            {
-              "id": "353be6c2-a6f3-5598-b55c-caf44de360a1",
-              "name": "lookback",
-              "value": "7 days",
-              "type": "string"
-            },
-            {
-              "id": "1b54a3ab-8ba8-5861-bdcc-187850658db4",
-              "name": "maxPerPhrase",
-              "value": 25,
-              "type": "number"
-            },
-            {
-              "id": "cece7e63-956b-56de-86d5-07bbed2c5088",
-              "name": "minScore",
-              "value": 7,
-              "type": "number"
-            },
-            {
-              "id": "3e9393fb-a99b-5cba-bf5d-3fa71b466731",
-              "name": "sheetTab",
-              "value": "Ideas",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "id": "dded1f18-fa3c-5eeb-89aa-bc52d4e26829",
-      "name": "Settings",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        120,
         40
       ]
     },
@@ -245,7 +224,7 @@
         "messages": {
           "messageValues": [
             {
-              "message": "You are a startup analyst. Read the Reddit post and decide if it shows a problem a new product or service could solve. Score 1-10: 8-10 a painful, recurring problem that people would pay to fix and that many others likely share; 5-7 a real but narrow or mild problem; 1-4 venting, news, a one-off, or already well solved by common tools. Category is one of: software, service, marketplace, content, hardware, other. Keep problem, audience and idea to one short sentence each."
+              "message": "You are a startup analyst. Read the Reddit post and decide if the author describes a specific problem that a new product or service could solve. Be strict: most posts are not business ideas. Score 1-10: 8-10 the author describes a painful, recurring problem in their own work or life, current tools fail or are missing, and many others likely share it; 5-7 a real but narrow or mild problem; 1-4 general advice requests (how to get clients, which career to choose), stories, opinions, news, venting with no fixable problem, a one-off, a problem common tools already solve well, or an author who promotes or asks feedback on their own product. Category is one of: software, service, marketplace, content, hardware, other. Keep problem, audience and idea to one short sentence each."
             }
           ]
         }
@@ -257,42 +236,6 @@
       "position": [
         1380,
         40
-      ]
-    },
-    {
-      "parameters": {
-        "model": {
-          "__rl": true,
-          "mode": "list",
-          "value": "gpt-5-mini"
-        },
-        "options": {}
-      },
-      "id": "ea1f530e-994e-5707-9f01-ff1e747c312f",
-      "name": "OpenAI model",
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1.2,
-      "position": [
-        1380,
-        260
-      ],
-      "credentials": {
-        "openAiApi": {
-          "name": "OpenAI account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsonSchemaExample": "{\n  \"score\": 8,\n  \"category\": \"software\",\n  \"problem\": \"Small landlords track repairs in scattered texts and lose receipts\",\n  \"audience\": \"Landlords with 1-10 units\",\n  \"idea\": \"A shared repair log that tenants can photo-submit to\"\n}"
-      },
-      "id": "3e2d1e0f-2d8c-55c5-bac7-799466f1d062",
-      "name": "Structured output",
-      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
-      "typeVersion": 1.2,
-      "position": [
-        1580,
-        260
       ]
     },
     {
@@ -343,6 +286,276 @@
     },
     {
       "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f4e78e10-b075-5485-93f8-e53ea5158e3b",
+              "name": "subreddits",
+              "value": "smallbusiness, Entrepreneur, SaaS",
+              "type": "string"
+            },
+            {
+              "id": "73abdc73-e81a-58cd-b0e4-2c4880c804af",
+              "name": "phrases",
+              "value": "I wish there was, is there a tool, so frustrated with, why is there no, I would pay for",
+              "type": "string"
+            },
+            {
+              "id": "353be6c2-a6f3-5598-b55c-caf44de360a1",
+              "name": "lookback",
+              "value": "7 days",
+              "type": "string"
+            },
+            {
+              "id": "1b54a3ab-8ba8-5861-bdcc-187850658db4",
+              "name": "maxPerPhrase",
+              "value": 25,
+              "type": "number"
+            },
+            {
+              "id": "cece7e63-956b-56de-86d5-07bbed2c5088",
+              "name": "minScore",
+              "value": 7,
+              "type": "number"
+            },
+            {
+              "id": "3e9393fb-a99b-5cba-bf5d-3fa71b466731",
+              "name": "sheetTab",
+              "value": "Ideas",
+              "type": "string"
+            },
+            {
+              "id": "32e71443-96d4-5f6c-b651-519a0309379d",
+              "name": "maxIdeas",
+              "value": 10,
+              "type": "number"
+            },
+            {
+              "id": "482135c1-2ffd-5af2-be65-7158d6cca5e0",
+              "name": "commentsPerPost",
+              "value": 25,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "dded1f18-fa3c-5eeb-89aa-bc52d4e26829",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        120,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "options": {}
+      },
+      "id": "ea1f530e-994e-5707-9f01-ff1e747c312f",
+      "name": "OpenAI model (rate)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1380,
+        260
+      ],
+      "credentials": {
+        "openAiApi": {
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"score\": 8,\n  \"category\": \"software\",\n  \"problem\": \"Small landlords track repairs in scattered texts and lose receipts\",\n  \"audience\": \"Landlords with 1-10 units\",\n  \"idea\": \"A shared repair log that tenants can photo-submit to\"\n}"
+      },
+      "id": "3e2d1e0f-2d8c-55c5-bac7-799466f1d062",
+      "name": "Rating format",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        1580,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const { maxIdeas } = $('Settings').first().json;\nreturn $input.all()\n  .sort((a, b) => b.json.score - a.json.score || (b.json.comments ?? 0) - (a.json.comments ?? 0))\n  .slice(0, maxIdeas);"
+      },
+      "id": "a2c321ba-013e-5f78-b344-3e9e55e6fd5a",
+      "name": "Top ideas only",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { startUrls: $input.all().map((i) => ({ url: i.json.url })) } }];"
+      },
+      "id": "ca2ee796-13fc-5daa-a734-8764a3d4ef25",
+      "name": "List idea threads",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2400,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "apifyApi",
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "actorSource": "store",
+        "actorId": "harshmaur~reddit-scraper",
+        "customBody": "={{ JSON.stringify({ startUrls: $json.startUrls, searchPosts: false, maxPostsCount: 1, crawlCommentsPerPost: true, maxCommentsPerPost: $('Settings').first().json.commentsPerPost, includeNSFW: false }, null, 2) }}",
+        "memory": 512,
+        "maxTotalChargeUsd": 1
+      },
+      "id": "3a416f34-6536-530d-be31-b4b4f9410ae2",
+      "name": "Read thread comments",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        2600,
+        40
+      ],
+      "credentials": {
+        "apifyApi": {
+          "name": "Apify account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const byPost = {};\nfor (const { json: c } of $input.all()) {\n  if (c.dataType !== 'comment' || !c.body || c.authorName === 'AutoModerator') continue;\n  (byPost[c.parsedPostId] ??= []).push(c);\n}\nreturn $('Top ideas only').all().map(({ json: idea }) => {\n  const postId = idea.url.match(/comments\\/([a-z0-9]+)/i)?.[1];\n  const comments = (byPost[postId] ?? []).sort((a, b) => (b.commentUpVotes ?? 0) - (a.commentUpVotes ?? 0));\n  const threadComments = comments\n    .map((c) => `[${c.commentUpVotes ?? 0} upvotes${c.isSubmitter ? ', author' : ''}] ${String(c.body).replace(/\\s+/g, ' ').slice(0, 300)}`)\n    .join('\\n').slice(0, 6000);\n  return { json: { ...idea, threadComments: threadComments || 'No comments yet.' } };\n});"
+      },
+      "id": "7f5182d9-7f0f-5cdb-b07a-2ab798be50b7",
+      "name": "Attach thread comments",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2640,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Subreddit: {{ $json.subreddit }}\nPost: {{ $json.title }} ({{ $json.upvotes }} upvotes, {{ $json.comments }} comments)\n\nFirst read: {{ $json.problem }} Audience: {{ $json.audience }} Idea: {{ $json.idea }} First score: {{ $json.score }}/10\n\nTop comments:\n{{ $json.threadComments }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a startup analyst who validates an idea with evidence. Read the top comments under a Reddit post about a problem. Count only real signals: people who say they have the same problem, people who say they would pay or already pay, and tools people name as what they use now. demand: one sentence with the counts. existingTools: the tools named in the comments, comma-separated, or none. gap: one sentence on what those tools do not solve, from the comments. mvp: the smallest product that tests the idea, in one sentence. firstTest: one cheap test to run this week, such as a landing page headline or a question to post. score: 1-10 after the evidence. If no commenter shares the problem and no one would pay, the score is at most 5. Lower the first score when the comments show the problem is already solved or rare. Raise it when many people share it or want to pay."
+            }
+          ]
+        }
+      },
+      "id": "fe5c7d0c-8216-5cf7-a8b6-adc949ab197a",
+      "name": "Validate with comments",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        2860,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "options": {}
+      },
+      "id": "8274235e-8702-5c22-aeed-3a8e460380f9",
+      "name": "OpenAI model (validate)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2860,
+        260
+      ],
+      "credentials": {
+        "openAiApi": {
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"demand\": \"6 commenters have the same problem and 2 say they would pay\",\n  \"existingTools\": \"Buildium, a shared Google Sheet\",\n  \"gap\": \"Buildium is too expensive for one or two units, and sheets lose the photos\",\n  \"mvp\": \"A text-in repair log that saves photos and receipts per unit\",\n  \"firstTest\": \"Post a landing page: Log every repair by text, receipts included, $9 a month\",\n  \"score\": 8\n}"
+      },
+      "id": "882e1795-be97-5555-8eb4-6981474f5fba",
+      "name": "Validation format",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        3040,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map((item, i) => {\n  const idea = $('Attach thread comments').itemMatching(i).json;\n  const { threadComments, ...rest } = idea;\n  return { json: { ...rest, firstScore: idea.score, ...item.json.output } };\n});"
+      },
+      "id": "ab2fe48b-bdf8-55d1-a0db-fa4561aeaa95",
+      "name": "Add validation to idea",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3200,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3c25aa9c-4fef-5909-b976-e55270b94002",
+              "leftValue": "={{ $json.score }}",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "rightValue": "={{ $('Settings').first().json.minScore }}"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6a5a9b0c-677a-56a4-be9a-13c60f164cc8",
+      "name": "Still good after comments",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        3400,
+        40
+      ]
+    },
+    {
+      "parameters": {
         "authentication": "oAuth2",
         "resource": "sheet",
         "operation": "append",
@@ -361,10 +574,16 @@
           "value": {
             "foundAt": "={{ $json.foundAt }}",
             "score": "={{ $json.score }}",
+            "firstScore": "={{ $json.firstScore }}",
             "category": "={{ $json.category }}",
             "problem": "={{ $json.problem }}",
             "audience": "={{ $json.audience }}",
             "idea": "={{ $json.idea }}",
+            "demand": "={{ $json.demand }}",
+            "existingTools": "={{ $json.existingTools }}",
+            "gap": "={{ $json.gap }}",
+            "mvp": "={{ $json.mvp }}",
+            "firstTest": "={{ $json.firstTest }}",
             "subreddit": "={{ $json.subreddit }}",
             "title": "={{ $json.title }}",
             "upvotes": "={{ $json.upvotes }}",
@@ -385,6 +604,15 @@
             {
               "id": "score",
               "displayName": "score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "firstScore",
+              "displayName": "firstScore",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -421,6 +649,51 @@
             {
               "id": "idea",
               "displayName": "idea",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "demand",
+              "displayName": "demand",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "existingTools",
+              "displayName": "existingTools",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "gap",
+              "displayName": "gap",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "mvp",
+              "displayName": "mvp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "firstTest",
+              "displayName": "firstTest",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -474,19 +747,143 @@
             }
           ]
         },
-        "options": {}
+        "options": {
+          "cellFormat": "RAW"
+        }
       },
       "id": "7e5b30a6-f484-504a-a2ca-066eb26a3735",
       "name": "Save idea to Google Sheets",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        2140,
+        3620,
         40
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Settings').first().json.sheetTab }}"
+        },
+        "options": {}
+      },
+      "id": "b8c402e2-b4ee-504a-84f2-4fad71e1c083",
+      "name": "Read earlier ideas",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3840,
+        40
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const week = $('Still good after comments').all().map((i) => i.json).sort((a, b) => b.score - a.score);\nconst now = $now;\nconst earlier = $input.all().map((i) => i.json)\n  .filter((r) => r.foundAt && r.problem)\n  .filter((r) => { const t = DateTime.fromISO(r.foundAt); return t < now.minus({ days: 6 }) && t >= now.minus({ weeks: 8 }); });\nreturn [{\n  json: {\n    count: week.length,\n    thisWeek: week.map((r) => `- ${r.score}/10 (first ${r.firstScore}) ${r.problem} | Demand: ${r.demand} | Tools: ${r.existingTools} | Gap: ${r.gap} | Test: ${r.firstTest} | ${r.url}`).join('\\n'),\n    earlier: earlier.slice(-150).map((r) => `- ${r.problem}`).join('\\n') || '(none)',\n    best: week.slice(0, 3).map((r) => `• ${r.score}/10 <${r.url}|${String(r.title).replace(/[<>|]/g, '')}>`).join('\\n'),\n  },\n}];"
+      },
+      "id": "f8d610c2-d089-597e-bf1e-05fc3695e8a0",
+      "name": "This week and earlier",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4060,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=This week's validated ideas:\n{{ $json.thisWeek }}\n\nProblems from earlier weeks:\n{{ $json.earlier }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You write a short weekly brief for a founder who looks for a business to build, in Slack mrkdwn. 1) Name the one idea from this week's list to test and why, using the demand evidence, and give its first test. 2) List the other ideas from this week's list in one line each, or say there are none. Never list earlier problems as ideas. 3) Name any problem from this week that also appears in earlier weeks, because a problem that comes back is stronger. If none, say so. Use at most 180 words. Do not invent numbers."
+            }
+          ]
+        }
+      },
+      "id": "0c433485-9d5f-5f42-9e76-1ccb3ab29c7d",
+      "name": "Write the weekly brief",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        4280,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "options": {}
+      },
+      "id": "d4948f5a-ff3d-50fc-b076-15e9931d76f7",
+      "name": "OpenAI model (brief)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        4280,
+        260
+      ],
+      "credentials": {
+        "openAiApi": {
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "resource": "message",
+        "operation": "post",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "messageType": "text",
+        "text": "=:bulb: *Reddit business ideas, this week:* {{ $('This week and earlier').first().json.count }} validated\n\n{{ $json.text }}\n\n*Top threads*\n{{ $('This week and earlier').first().json.best }}",
+        "otherOptions": {
+          "unfurl_links": false,
+          "includeLinkToWorkflow": false
+        }
+      },
+      "id": "647f16b6-37fb-5f3f-b2e5-b028cfb48695",
+      "name": "Post brief to Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        4520,
+        40
+      ],
+      "credentials": {
+        "slackApi": {
+          "name": "Slack account"
         }
       }
     }
@@ -584,6 +981,83 @@
       "main": [
         [
           {
+            "node": "Top ideas only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Top ideas only": {
+      "main": [
+        [
+          {
+            "node": "List idea threads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List idea threads": {
+      "main": [
+        [
+          {
+            "node": "Read thread comments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read thread comments": {
+      "main": [
+        [
+          {
+            "node": "Attach thread comments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attach thread comments": {
+      "main": [
+        [
+          {
+            "node": "Validate with comments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate with comments": {
+      "main": [
+        [
+          {
+            "node": "Add validation to idea",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add validation to idea": {
+      "main": [
+        [
+          {
+            "node": "Still good after comments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Still good after comments": {
+      "main": [
+        [
+          {
             "node": "Save idea to Google Sheets",
             "type": "main",
             "index": 0
@@ -591,7 +1065,51 @@
         ]
       ]
     },
-    "OpenAI model": {
+    "Save idea to Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Read earlier ideas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read earlier ideas": {
+      "main": [
+        [
+          {
+            "node": "This week and earlier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "This week and earlier": {
+      "main": [
+        [
+          {
+            "node": "Write the weekly brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write the weekly brief": {
+      "main": [
+        [
+          {
+            "node": "Post brief to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI model (rate)": {
       "ai_languageModel": [
         [
           {
@@ -602,12 +1120,45 @@
         ]
       ]
     },
-    "Structured output": {
+    "Rating format": {
       "ai_outputParser": [
         [
           {
             "node": "Rate the opportunity",
             "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI model (validate)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Validate with comments",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validation format": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Validate with comments",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI model (brief)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Write the weekly brief",
+            "type": "ai_languageModel",
             "index": 0
           }
         ]
