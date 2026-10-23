@@ -30,12 +30,12 @@ Apply once as a creator (free; ties templates to the Apify affiliate program if 
 - Setup steps: as above, with Google Sheets in place of Slack; create a sheet with a tab named `Leads` and pick it in the last node.
 - Categories: Sales, Lead Generation. Nodes: Schedule Trigger, Apify, Filter, Google Sheets.
 
-## State (2026-10-21)
+## State (2026-10-23)
 
 - n8n, published under [creators/harshmaur](https://n8n.io/creators/harshmaur/):
   - [20980 Send new subreddit posts to Slack with Apify Reddit scraper](https://n8n.io/workflows/20980-send-new-subreddit-posts-to-slack-with-apify-reddit-scraper/)
   - [21035 Track Reddit keyword mentions with Apify and send alerts to Slack and Gmail](https://n8n.io/workflows/21035-track-reddit-keyword-mentions-with-apify-and-send-alerts-to-slack-and-gmail/)
-- n8n: richer lead scoring (21329), "Score Reddit buying-intent leads with Apify, OpenAI, Google Sheets and Slack", was published on 2026-10-20. Business ideas v2 is ready for approval; it has not been submitted. Brand digest waits until business ideas is published.
+- n8n: richer lead scoring (21329), "Score Reddit buying-intent leads with Apify, OpenAI, Google Sheets and Slack", was published on 2026-10-20. Business ideas (21436) was rejected as too basic. The trend-analysis version below is ready for approval before resubmitting the same submission. Brand digest waits until business ideas is published.
 - Make, approved:
   - [20007 Reddit keyword alerts without the Reddit API: new brand and competitor mentions to Slack daily](https://www.make.com/hq/template/20007) (approved 2026-10-16)
   - [20018 Score Reddit buying-intent leads with AI and send hot leads to Slack](https://www.make.com/hq/template/20018) (approved 2026-10-19)
@@ -52,9 +52,9 @@ Each template opens with an Overview canvas note. Copy its text into the matchin
 
 **Send a daily Reddit brand mention digest with AI sentiment to Slack, from posts and comments** — `n8n/reddit-brand-mention-digest-to-slack.json`. Categories: Marketing, Social Media Monitoring, AI. Nodes: Schedule Trigger, Set, Apify, Code, Remove Duplicates, If, Basic LLM Chain, OpenAI Chat Model, Slack.
 
-### Business ideas v2 — approved-text candidate
+### Business ideas — trend-analysis portal text
 
-Use the name above if the portal allows a name change. The portal can set the title from the workflow.
+Resubmit the existing submission **21436** after approval. Do not create a new template. The portal may keep its own title. Its Implement changes modal accepts only an updated workflow file; if it has no text fields, the new instructions are in the canvas Overview note.
 
 **Quick overview (39 words)**
 
@@ -68,14 +68,16 @@ Every Monday this workflow finds Reddit posts where people complain or wish for 
 4. **Rate the opportunity** asks OpenAI for the problem, who has it, a product idea and a first 1-10 score. **Good ideas only** keeps scores at or above `minScore`, and **Top ideas only** keeps the best `maxIdeas`.
 5. **Read thread comments** gets the top comments of those ideas in one Apify run.
 6. **Validate with comments** reads them and returns the demand evidence, the tools people already use, the gap, a small first product, a first test and a new score. **Still good after comments** drops ideas that fall below `minScore`, and **Save idea to Google Sheets** keeps the rest.
-7. **Read earlier ideas** loads the sheet. **Write the weekly brief** ranks this week's ideas, picks one to test and names problems that also came up in earlier weeks. **Post brief to Slack** sends it.
+7. **Read earlier ideas** loads the sheet. **Group recurring problems** groups the same customer problem and audience across this week and up to eight weeks of saved ideas.
+8. **Count and rank trend evidence** counts distinct threads and weeks, compares the last 7 days with the previous 7 days, and ranks the trends. **Save weekly trend history** keeps the counts and source links in a `Trends` tab.
+9. **Write the weekly brief** picks one idea to test and reports the measured trends. **Post brief to Slack** sends it.
 
 **Setup**
 
 1. Add the **Apify** node (`@apify/n8n-nodes-apify`, a verified node) if your n8n does not have it yet.
 2. Create an **Apify API** credential with the token from [Apify Console → API & Integrations](https://console.apify.com/settings/integrations). No account yet? [Sign up free](https://console.apify.com/sign-up?fpr=tl88um); the free plan includes monthly credit.
-3. Add an **OpenAI** credential and select it in the three OpenAI model nodes.
-4. Create a Google Sheet with an `Ideas` tab and the columns `foundAt, score, firstScore, category, problem, audience, idea, demand, existingTools, gap, mvp, firstTest, subreddit, title, upvotes, comments, url`. Connect Google Sheets and pick the file in **Save idea to Google Sheets** and **Read earlier ideas**.
+3. Add an **OpenAI** credential and select it in the four OpenAI model nodes.
+4. Create a Google Sheet with an `Ideas` tab and the columns `foundAt, score, firstScore, category, problem, audience, idea, demand, existingTools, gap, mvp, firstTest, subreddit, title, upvotes, comments, url`. Add a `Trends` tab with the columns `weekEnding, problem, audience, thisWeekThreads, previousWeekThreads, change, status, threadsSeen, weeksSeen, evidenceUrls`. Connect Google Sheets and pick the same file in **Save idea to Google Sheets**, **Read earlier ideas** and **Save weekly trend history**.
 5. Connect Slack and pick a channel in **Post brief to Slack**.
 6. Edit `subreddits` and `phrases` in **Settings**.
 
@@ -86,6 +88,7 @@ Every Monday this workflow finds Reddit posts where people complain or wish for 
 - Change the scoring rules in **Rate the opportunity** and **Validate with comments** to fit B2B, consumer or local businesses.
 - `maxIdeas` and `commentsPerPost` set how many ideas get validated and how many comments each one reads.
 - Reddit results cost about $2 per 1,000 on Apify. Comments add up to `commentsPerPost` + 1 results for each validated idea (up to 260 results, about $0.52 before start fees, at the default limits). Each subreddit search run has a $2 cap; the comment run has a $1 cap. OpenAI costs are separate.
+- Trend counts cover only validated threads saved by this workflow, with at most 150 earlier threads from the last eight weeks. Each thread counts once. The `Trends` tab keeps one row per problem per run.
 
 **Additional info**
 
